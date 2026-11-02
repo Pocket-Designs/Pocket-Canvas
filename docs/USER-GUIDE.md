@@ -9,6 +9,7 @@ This guide is for anyone using the app. You don't need any technical knowledge.
 **Version 1.5**
 - **Share boards with other people** and edit them together, live, through your own **Pocket-Canvas Server**, which also syncs your devices without a sync folder ([section 26](#26-sharing-boards-and-your-own-server))
 - **PDF for printing**: A4 or Letter pages, portrait, landscape or best fit, and cards are never cut in half ([section 20](#20-exporting-pdf-picture-and-markdown))
+- **Your own interface colours**: pick an accent colour and an interface colour in **Settings › Appearance** ([section 21](#21-settings-and-dark-mode))
 - **Tables:** paste tables from Excel, Word, Google Sheets and web pages, photos in cells, drag rows and columns to move them, and colour cells, rows and columns with any fill or text colour, plus bold, italic and underline ([section 4](#table))
 - **Scroll bars** along the bottom and right of the board whenever pictures or cards are off screen
 - **Page guides**: dashed A4 or Letter page outlines on the board, so you can lay things out for printing; turn them on and off with the page button or **Ctrl+Shift+G** ([section 20](#page-guides))
@@ -738,6 +739,12 @@ Open **Settings** with the **⚙** button at the bottom of the sidebar, **File �
   - **Your name**: shown on comments you write
   - **This computer's name**: shown on your other computers when syncing
   - **Link previews**: on or off
+- **Appearance**: the look of Pocket-Canvas itself
+  - **Light or dark**: *Light*, *Dark*, or *Match this computer* (follows your computer's own setting)
+  - **Accent colour**: the colour of buttons, highlights and the board you're on. Pick one of 14 colours, or click the rainbow circle for any colour. On pale colours, button text turns dark so it stays readable.
+  - **Interface colour**: the colour of the sidebar, top bar, board background and panels. Choose *Warm sand* (the standard), *Stone grey*, *Cool slate*, *Sky blue*, *Sage green*, *Mint*, *Lavender*, *Rose*, *Peach* or *Lemon*, or **Your own…** for any colour. Light and dark mode each get matching shades.
+  - **Back to the standard colours** undoes your changes.
+  - Colours change straight away, and are kept on this computer only; your other computers keep their own. Card and board colours aren't affected.
 - **Spelling**: see [Spelling](#15-spelling)
 - **Backups**: see [Backing up and moving to another computer](#19-backing-up-and-moving-to-another-computer)
 - **Sync**: see [Syncing between your computers](#17-syncing-between-your-computers)

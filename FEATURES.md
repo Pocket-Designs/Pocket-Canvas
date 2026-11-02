@@ -4,7 +4,7 @@ Version 1.5.0 · © 2026 project-tech-me
 
 Pocket-Canvas is a desktop, Android, iPhone and iPad app for organising ideas visually. Put notes, pictures, links, to-do lists, tables, sketches, audio, video and files on an endless board, then group, connect and nest them however you think. Start from a template, keep your boards in step across all your devices, share boards with other people and edit them together, and save things straight from your web browser.
 
-**New in 1.5:** **share boards with other people and edit them together, live**, through your own **Pocket-Canvas Server** (which also syncs your devices without a sync folder) · **PDF for printing** on A4 or Letter pages, portrait, landscape or best fit, with no card cut in half · **tables:** paste from Excel/Word/Sheets, photos in cells, move rows and columns, and colour cells, rows and columns with text styles · **scroll bars** along the bottom and right of the board when cards are off screen · **page guides** on the board (A4/Letter, on or off) that the PDF follows exactly · **pressure-sensitive pens** and **shapes** (lines, arrows, rectangles, ellipses) in sketches · **YouTube, Vimeo, Dailymotion and Loom videos** playing in link cards · **iPhone and iPad app** · web clipper for **Safari** · Android: Android's own **folder picker** for sync, and **picture/PDF export**.
+**New in 1.5:** **share boards with other people and edit them together, live**, through your own **Pocket-Canvas Server** (which also syncs your devices without a sync folder) · **PDF for printing** on A4 or Letter pages, portrait, landscape or best fit, with no card cut in half · **your own interface colours** (accent and interface colour, any colour, light and dark) · **tables:** paste from Excel/Word/Sheets, photos in cells, move rows and columns, and colour cells, rows and columns with text styles · **scroll bars** along the bottom and right of the board when cards are off screen · **page guides** on the board (A4/Letter, on or off) that the PDF follows exactly · **pressure-sensitive pens** and **shapes** (lines, arrows, rectangles, ellipses) in sketches · **YouTube, Vimeo, Dailymotion and Loom videos** playing in link cards · **iPhone and iPad app** · web clipper for **Safari** · Android: Android's own **folder picker** for sync, and **picture/PDF export**.
 
 **New in 1.4:** more accurate colour names on Colour cards · **Android app** that syncs with your computers · text formatting (font, size, bold, italic, underline, strikethrough, colour) · line styles (no arrows, arrows at both ends, dashed, dotted, thick, straight) and lines that float freely on the board · delete table rows and columns with one click · 51 board-icon colours plus any colour you like · no more gap at the edge of the board.
 
@@ -218,7 +218,12 @@ Pocket-Canvas is a desktop, Android, iPhone and iPad app for organising ideas vi
 
 ## Look and feel
 
-- Light and dark themes. Follows your computer's setting until you choose one (Ctrl+Shift+L).
+- Light and dark themes. Follows your computer's setting until you choose one (Ctrl+Shift+L, or Settings › Appearance).
+- **Your own interface colours** (Settings › Appearance):
+  - **Accent colour** for buttons, highlights and the board you're on: 14 colours or any colour you pick. Button text turns dark on pale accents so it stays readable.
+  - **Interface colour** for the sidebar, top bar, board background and panels: 10 tints (Warm sand, Stone grey, Cool slate, Sky blue, Sage green, Mint, Lavender, Rose, Peach, Lemon) or any colour.
+  - Light and dark mode each get matching shades. Changes show straight away, with one button to go back to the standard colours.
+  - Kept per computer or device, so each one can look different.
 - Clean dotted-grid canvas
 - Hide the sidebar for more room (Ctrl+\)
 - Welcome board on first launch, with tips to get started

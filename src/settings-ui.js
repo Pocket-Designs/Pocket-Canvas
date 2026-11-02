@@ -22,8 +22,8 @@ async function renderSettings() {
   syncStatus = await api.syncStatus();
   const mobile = !!api.mobile; // the Android, iPhone and iPad apps
   // The Android app has no spelling settings (the keyboard does that), folder backups or browser extension.
-  const tabs = mobile ? [['general', 'General'], ['sync', 'Sync'], ['server', 'Server']]
-    : [['general', 'General'], ['spelling', 'Spelling'], ['backups', 'Backups'], ['sync', 'Sync'], ['server', 'Server'], ['clipper', 'Browser extension']];
+  const tabs = mobile ? [['general', 'General'], ['appearance', 'Appearance'], ['sync', 'Sync'], ['server', 'Server']]
+    : [['general', 'General'], ['appearance', 'Appearance'], ['spelling', 'Spelling'], ['backups', 'Backups'], ['sync', 'Sync'], ['server', 'Server'], ['clipper', 'Browser extension']];
   if (!tabs.some(([id]) => id === settingsTab)) settingsTab = 'general';
   let pane;
   if (settingsTab === 'spelling') pane = spellingPane(await api.spellGet());
@@ -31,6 +31,7 @@ async function renderSettings() {
   else if (settingsTab === 'sync') pane = syncPane(s, syncStatus);
   else if (settingsTab === 'clipper') pane = clipperPane(s);
   else if (settingsTab === 'server') pane = serverPane(serverStatus());
+  else if (settingsTab === 'appearance') pane = appearancePane();
   else pane = generalPane(s);
   body.innerHTML = `
     <nav class="set-tabs">${tabs.map(([id, name]) => `<button data-tab="${id}" class="${settingsTab === id ? 'on' : ''}">${name}</button>`).join('')}</nav>
@@ -39,6 +40,7 @@ async function renderSettings() {
   bindSpelling(body);
   bindBackups(body);
   bindServer(body);
+  bindAppearance(body);
 }
 
 function generalPane(s) {

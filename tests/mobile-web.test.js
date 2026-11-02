@@ -136,7 +136,7 @@ const FAKE_PHONE = `(() => {
     // ---------- settings ----------
     await ex(() => openSettings()); await sleep(300);
     const tabs = await ex(() => [...document.querySelectorAll('.set-tabs button')].map((b) => b.textContent));
-    check('android: settings show General, Sync and Server', tabs.join() === 'General,Sync,Server');
+    check('android: settings show General, Appearance, Sync and Server', tabs.join() === 'General,Appearance,Sync,Server');
     await ex(() => openSettings('sync')); await sleep(300);
     check('android: sync settings explain using a sync app such as Syncthing', await ex(() => /Syncthing/.test(document.querySelector('.set-pane').textContent)));
     await shot('android-sync-settings.png');

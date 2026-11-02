@@ -1846,6 +1846,7 @@ function toast(msg, action) {
 function applyTheme() {
   const theme = store.ui.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   document.documentElement.dataset.theme = theme;
+  if (typeof applyAppearance === 'function') applyAppearance(); // your own interface colours (appearance.js)
 }
 function toggleTheme() {
   const now = document.documentElement.dataset.theme;

@@ -614,6 +614,34 @@ function request(method, p, { body, token, origin } = {}) {
     await ex(`api.backupSet({ keep: 30 })`);
     await ex(`openSettings('backups')`); await sleep(500); await shot('settings-backups.png');
 
+    // ================= Appearance: interface colours =================
+    const cssVar = (v) => ex(`getComputedStyle(document.documentElement).getPropertyValue('${v}').trim()`);
+    await ex(`store.ui.theme = 'light'; applyTheme()`);
+    const bgStd = await cssVar('--bg');
+    await ex(`openSettings('appearance')`); await sleep(500);
+    check('appearance: Settings has an Appearance tab with accent and interface colours', await ex(`[...document.querySelectorAll('.set-tabs button')].some(b => b.textContent === 'Appearance' && b.classList.contains('on')) && document.querySelectorAll('[data-accent]').length >= 12 && document.querySelectorAll('[data-tint]').length >= 8 && !!document.querySelector('[data-accent-pick]') && !!document.querySelector('[data-tint-pick]')`));
+    await ex(`document.querySelector('[data-accent="#3a7be0"]').click()`); await sleep(400);
+    check('appearance: picking an accent colour changes buttons and highlights straight away', (await cssVar('--accent')) === '#3a7be0' && await ex(`getComputedStyle(document.querySelector('.modal .ghost-btn, .modal button')).length !== 0 && (() => { const b = document.createElement('button'); b.className = 'primary-btn'; document.body.appendChild(b); const c = getComputedStyle(b).backgroundColor; b.remove(); return c === 'rgb(58, 123, 224)'; })()`));
+    check('appearance: the chosen accent is shown as selected, with its name', await ex(`document.querySelector('[data-accent="#3a7be0"]').classList.contains('on') && document.querySelector('.ap-now').textContent.includes('Blue')`));
+    await ex(`document.querySelector('[data-tint="sky"]').click()`); await sleep(400);
+    const bgSky = await cssVar('--bg');
+    check('appearance: picking an interface colour changes the sidebar, top bar and board background', bgSky !== bgStd && await ex(`getComputedStyle(document.querySelector('#sidebar')).backgroundColor !== 'rgb(251, 250, 247)' && getComputedStyle(document.querySelector('#viewport')).backgroundColor === getComputedStyle(document.documentElement).getPropertyValue('--bg').trim().replace(/^#(..)(..)(..)$/, (m, r, g, b) => 'rgb(' + [r, g, b].map(x => parseInt(x, 16)).join(', ') + ')')`));
+    await shot('settings-appearance.png');
+    await ex(`document.querySelector('input[name="ap-mode"][value="dark"]').click()`); await sleep(300);
+    check('appearance: dark mode gets its own dark shades of the same colours', (await ex(`document.documentElement.dataset.theme`)) === 'dark' && (await cssVar('--bg')) !== bgSky && await ex(`(() => { const h = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim(); const n = parseInt(h.slice(1), 16); return ((n >> 16) & 255) < 60; })()`));
+    await shot('settings-appearance-dark.png');
+    await ex(`document.querySelector('input[name="ap-mode"][value="light"]').click()`); await sleep(200);
+    await ex(`(() => { const i = document.querySelector('[data-accent-pick]'); i.value = '#ffe066'; i.dispatchEvent(new Event('input', { bubbles: true })); i.dispatchEvent(new Event('change', { bubbles: true })); })()`); await sleep(400);
+    check('appearance: any accent colour can be picked', (await cssVar('--accent')) === '#ffe066' && await ex(`store.ui.appearance.accent === '#ffe066'`));
+    check('appearance: text on a pale accent turns dark so it stays readable', (await cssVar('--on-accent')) === '#2b2823');
+    await ex(`(() => { const i = document.querySelector('[data-tint-pick]'); i.value = '#9c6bd6'; i.dispatchEvent(new Event('input', { bubbles: true })); i.dispatchEvent(new Event('change', { bubbles: true })); })()`); await sleep(400);
+    check('appearance: any interface colour can be picked', await ex(`store.ui.appearance.tint === '#9c6bd6'`) && (await cssVar('--bg')) !== bgSky);
+    await ex(`flushSave()`); await sleep(400);
+    check('appearance: the colours are kept on this computer but don’t sync to others', await ex(`(() => { const st = PCSync.syncState(store); return !JSON.stringify(st).includes('#ffe066'); })()`) && fs.readFileSync(path.join(userData, 'pocket-canvas-data.json'), 'utf8').includes('#ffe066'));
+    await ex(`document.querySelector('[data-ap-reset]').click()`); await sleep(400);
+    check('appearance: “Back to the standard colours” resets everything', (await cssVar('--accent')) === '#e0673a' && (await cssVar('--bg')) === bgStd && await ex(`!store.ui.appearance && !document.documentElement.style.getPropertyValue('--accent')`));
+    await ex(`settingsModal && settingsModal.close()`); await sleep(200);
+
     // ================= 1.3: spelling =================
     const sp = await ex(`api.spellGet()`);
     check('spelling: on by default, in English (UK)', sp.enabled === true && sp.languages[0] === 'en-GB');
