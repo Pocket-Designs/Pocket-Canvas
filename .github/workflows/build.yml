@@ -11,6 +11,11 @@ on:
         description: 'Also build the Mac, iPhone/iPad and Safari versions (untick if GitHub''s Mac machines are busy or down)'
         type: boolean
         default: true
+      mac_machine:
+        description: 'Which GitHub Mac machines to use. If Apple-chip ones are busy ("not acquired"), try Intel.'
+        type: choice
+        options: [macos-26, macos-15-intel]
+        default: macos-26
 
 permissions:
   contents: write
@@ -66,7 +71,7 @@ jobs:
       fail-fast: false
       matrix:
         # macos-26 is named directly (not macos-latest) so the build doesn't change when GitHub moves the label.
-        os: ${{ fromJSON((github.event_name == 'workflow_dispatch' && !inputs.mac) && '["windows-latest","ubuntu-24.04"]' || '["windows-latest","ubuntu-24.04","macos-26"]') }}
+        os: ${{ fromJSON((github.event_name == 'workflow_dispatch' && !inputs.mac) && '["windows-latest","ubuntu-24.04"]' || format('["windows-latest","ubuntu-24.04","{0}"]', inputs.mac_machine || 'macos-26')) }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
@@ -202,9 +207,14 @@ jobs:
     needs: test
     if: github.event_name != 'workflow_dispatch' || inputs.mac
     timeout-minutes: 60
-    runs-on: macos-26
+    runs-on: ${{ inputs.mac_machine || 'macos-26' }}
     steps:
       - uses: actions/checkout@v7
+      - name: Use the newest Xcode on this machine
+        run: |
+          XC=$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$XC" ]; then sudo xcode-select -s "$XC/Contents/Developer"; fi
+          xcodebuild -version
       - uses: actions/setup-node@v7
         with:
           node-version: 22
@@ -255,9 +265,14 @@ jobs:
     needs: test
     if: github.event_name != 'workflow_dispatch' || inputs.mac
     timeout-minutes: 45
-    runs-on: macos-26
+    runs-on: ${{ inputs.mac_machine || 'macos-26' }}
     steps:
       - uses: actions/checkout@v7
+      - name: Use the newest Xcode on this machine
+        run: |
+          XC=$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$XC" ]; then sudo xcode-select -s "$XC/Contents/Developer"; fi
+          xcodebuild -version
       - uses: actions/setup-node@v7
         with:
           node-version: 22

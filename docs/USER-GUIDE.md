@@ -106,7 +106,7 @@ Installing a new version over an old one keeps all your boards.
 
 ### macOS
 
-1. Open the **.dmg** file and drag **Pocket-Canvas** into **Applications**.
+1. Download the right **.dmg**: `…-mac-arm64.dmg` for Macs with Apple chips (M1 or later), or `…-mac-x64.dmg` for older Intel Macs. (**Apple menu › About This Mac** shows which you have.) Open it and drag **Pocket-Canvas** into **Applications**.
 2. The first time, **right-click** the app and choose **Open**, then click **Open** again. If macOS still blocks it, go to **System Settings → Privacy & Security** and click **Open Anyway**. You only need to do this once.
 
 ---

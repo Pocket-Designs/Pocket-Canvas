@@ -38,6 +38,7 @@ The workflow lives in `.github/workflows/build.yml` and runs in two stages:
 1. **test**, on Ubuntu. It runs the sync merge tests, the server tests, the smoke test, the feature tests (including a real Pocket-Canvas Server), the extension test in Chromium and the phone/tablet screens test. Then it packages the browser extension zip.
 2. **build**, **android**, **ios** and **safari**, at the same time. This stage runs only if every test passed.
    - **build** runs on Windows, Ubuntu and macOS and makes the `.exe`, `.AppImage`, `.deb` and `.dmg`.
+   - **If the Mac jobs say "not acquired by Runner"**, GitHub had no free Mac machines. Use **Re-run failed jobs** later, or start a new run with **Mac machines** set to **macos-15-intel**. GitHub's Intel Macs are often less busy, and they still make both Mac versions and the iPhone/iPad app.
    - **android** makes the Android `.apk` (see [ANDROID.md](ANDROID.md)).
    - **ios** makes the iPhone and iPad app on a Mac (see [IOS.md](IOS.md)).
    - **safari** makes the Safari web clipper app on a Mac (see [SAFARI.md](SAFARI.md)).
@@ -94,7 +95,7 @@ Use a test build whenever you want installers to try out without publishing anyt
    | Artifact | Contains |
    |---|---|
    | `pocket-canvas-windows-latest` | `Pocket-Canvas Setup 1.5.0.exe` |
-   | `pocket-canvas-macos-26` | `Pocket-Canvas-1.5.0-arm64.dmg` (Apple-silicon Macs) |
+   | `pocket-canvas-macos-26` (or `-macos-15-intel`) | `Pocket-Canvas-1.5.0-mac-arm64.dmg` for Macs with Apple chips (M1 and later), and `Pocket-Canvas-1.5.0-mac-x64.dmg` for older Intel Macs |
    | `pocket-canvas-ubuntu-24.04` | `Pocket-Canvas-1.5.0.AppImage`, `pocket-canvas_1.5.0_amd64.deb` |
    | `pocket-canvas-browser-extension` | `pocket-canvas-web-clipper-1.5.0.zip` |
    | `pocket-canvas-android` | `Pocket-Canvas-1.5.0-android.apk` (see [ANDROID.md](ANDROID.md)) |
