@@ -1,5 +1,5 @@
 /* Pocket-Canvas — page guides: dashed outlines of A4 / Letter pages drawn on the board
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  *
  * Pages are laid out from the board's top-left corner, left to right and top to bottom,
  * exactly as "PDF for printing › Follow the page guides" prints them. Cards that cross

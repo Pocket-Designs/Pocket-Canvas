@@ -1,5 +1,5 @@
 /* Pocket-Canvas — Recycle bin
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  *
  * Deleted cards and boards go to store.bin. Each entry holds everything needed to put
  * them back (cards, boards inside them, lines). Entries older than BIN_DAYS are removed

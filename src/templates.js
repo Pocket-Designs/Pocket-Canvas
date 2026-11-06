@@ -1,5 +1,5 @@
 /* Pocket-Canvas — board templates (built-in and your own)
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  */
 'use strict';
 

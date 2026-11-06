@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Pocket-Canvas Server — sync your boards through your own server, and share boards with other
 // people so you can edit them together.
-// Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com> · MIT licence
+// Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me> · MIT licence
 //
 // What it does
 //   • Accounts: people sign up with the server's join code, then sign in with their own password.

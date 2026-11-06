@@ -1,5 +1,5 @@
 /* Pocket-Canvas Web Clipper — right-click menu
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  */
 'use strict';
 // Chrome loads this as a service worker (needs importScripts); Firefox loads lib.js first.

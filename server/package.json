@@ -8,7 +8,7 @@
     "start": "node pocket-canvas-server.js",
     "test": "node ../tests/server.test.js"
   },
-  "author": "project-tech-me <project-tech-me@protonmail.com>",
+  "author": "Pocket-Designs <pocket-designs@proton.me>",
   "license": "MIT",
   "engines": { "node": ">=18" },
   "dependencies": {

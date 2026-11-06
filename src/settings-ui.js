@@ -1,5 +1,5 @@
 /* Pocket-Canvas — Settings window
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  */
 'use strict';
 
@@ -51,7 +51,7 @@ function generalPane(s) {
       <input data-set="deviceName" value="${esc(s.deviceName)}" maxlength="60"></label>
     <label class="check"><input type="checkbox" data-set="linkPreviews" ${s.linkPreviews ? 'checked' : ''}>
       <span><b>Link previews</b><br><small>When you add a link, Pocket-Canvas visits the page to fetch its title, description and picture. Turn this off if you’d rather it didn’t contact websites.</small></span></label>
-    <p class="muted small">Pocket-Canvas ${esc(s.version)} · © 2026 project-tech-me</p>`;
+    <p class="muted small">Pocket-Canvas ${esc(s.version)} · © 2026 Pocket-Designs</p>`;
 }
 
 function syncPane(s, st) {

@@ -1,5 +1,5 @@
 /* Pocket-Canvas — password-protected boards
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  *
  * A locked board's contents (its cards, lines and every board inside it) are encrypted
  * with AES-256-GCM, using a key made from the password with PBKDF2-SHA256 (310,000
@@ -246,7 +246,7 @@ async function relock(id) {
 }
 
 // ---------- Locking, changing and removing ----------
-const PASSWORD_WARNING = `<div class="lock-warn"><b>Don’t forget it.</b> The board is encrypted with this password. If it’s lost, nobody can open the board, not even project-tech-me. A hint can help you remember.</div>`;
+const PASSWORD_WARNING = `<div class="lock-warn"><b>Don’t forget it.</b> The board is encrypted with this password. If it’s lost, nobody can open the board, not even Pocket-Designs. A hint can help you remember.</div>`;
 
 function checkNewPassword(out) {
   if (out.password.length < 6) return 'Use at least 6 characters.';

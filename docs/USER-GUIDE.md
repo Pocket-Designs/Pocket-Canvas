@@ -43,7 +43,7 @@ This guide is for anyone using the app. You don't need any technical knowledge.
 **Version 1.1**
 - Sync between computers, templates, comments, link previews, tables, audio and video, sketches, PDF/picture export and the browser extension
 
-Version 1.5.0 · © 2026 project-tech-me · project-tech-me@protonmail.com
+Version 1.5.0 · © 2026 Pocket-Designs · pocket-designs@proton.me
 
 ---
 
@@ -967,4 +967,4 @@ Pocket-Canvas runs on iPhone and iPad (iOS 15 or newer), just like the Android a
 
 ## Need help?
 
-Email **project-tech-me@protonmail.com**.
+Email **pocket-designs@proton.me**.

@@ -1,6 +1,6 @@
 # Releasing and code signing Pocket-Canvas
 
-Copyright © 2026 project-tech-me · project-tech-me@protonmail.com
+Copyright © 2026 Pocket-Designs · pocket-designs@proton.me
 
 This guide walks through two jobs step by step:
 
@@ -49,7 +49,7 @@ The workflow starts in one of two ways. You can press **Run workflow** to make a
 You only need to do this once.
 
 1. **Create the repository.**
-   1. Sign in at <https://github.com> as the `Projects-me-design` account.
+   1. Sign in at <https://github.com> as the `Pocket-Designs` account.
    2. Click **+** (top right), then **New repository**.
    3. For **Repository name**, type `Pocket-Canvas`.
    4. Choose **Public** or **Private**. Actions work for both. Private repositories get a monthly allowance of free build minutes, and macOS minutes count ten times.
@@ -63,7 +63,7 @@ You only need to do this once.
    git add .
    git commit -m "Pocket-Canvas 1.5.0"
    git branch -M main
-   git remote add origin https://github.com/Projects-me-design/Pocket-Canvas.git
+   git remote add origin https://github.com/Pocket-Designs/Pocket-Canvas.git
    git push -u origin main
    ```
 
@@ -160,7 +160,7 @@ Check the things this release changed, then check the basics: open a board, add 
    - Each build job adds its own files as it finishes, so the list fills in over a few minutes.
 9. **Write the release notes.** Click the pencil (**Edit**) on the release. Paste the release's lines from `FEATURES.md`, plus a short "Installing" note pointing Windows and Mac users to the warnings in section 1.3 if the build is unsigned. Click **Update release**.
 
-People can now download from `https://github.com/Projects-me-design/Pocket-Canvas/releases/latest`.
+People can now download from `https://github.com/Pocket-Designs/Pocket-Canvas/releases/latest`.
 
 ## 1.5 When something goes wrong
 
@@ -214,7 +214,7 @@ If people may already have downloaded the broken version, release `1.4.1` instea
 | **Windows B:** a certificate from a certificate company (SSL.com, Certum, Sectigo, DigiCert, GlobalSign and others) | Anyone, including UK individuals | About £100–£300 a year |
 | **Windows C:** SignPath Foundation | Qualifying open-source projects | Free |
 
-**If you're signing as an individual in the UK,** use the Apple Developer Program for macOS and route B for Windows. Azure Artifact Signing becomes an option if project-tech-me is registered as a company.
+**If you're signing as an individual in the UK,** use the Apple Developer Program for macOS and route B for Windows. Azure Artifact Signing becomes an option if Pocket-Designs is registered as a company.
 
 **EV certificates are no longer worth the extra cost.** They used to skip SmartScreen, but Microsoft removed that in 2024, and an ordinary OV certificate now behaves the same.
 
@@ -255,7 +255,7 @@ You need a Mac for steps 2 and 3. A friend's Mac is fine; you only need it once 
 1. **Join the Apple Developer Program.**
    1. Go to <https://developer.apple.com/programs/enroll/> and sign in with your Apple Account. It must have two-factor authentication turned on.
    2. Choose **Individual / Sole Trader**. Apps will then show your personal name.
-   3. If you'd rather apps show "project-tech-me", choose **Organisation**. This needs a registered company and a free D-U-N-S number, and takes longer.
+   3. If you'd rather apps show "Pocket-Designs", choose **Organisation**. This needs a registered company and a free D-U-N-S number, and takes longer.
    4. Pay the yearly fee. Approval usually takes from a few hours to two days.
 
 2. **Create a "Developer ID Application" certificate.**
@@ -350,7 +350,7 @@ Azure Artifact Signing used to be called **Trusted Signing**, and some Azure scr
 3. **Create the signing account.**
    1. Search the portal for **Artifact Signing accounts** and click **+ Create**.
    2. **Resource group:** create a new one called `pocket-canvas-signing`.
-   3. **Account name:** for example `projecttechme`. This becomes `AZURE_SIGNING_ACCOUNT`.
+   3. **Account name:** for example `pocketdesigns`. This becomes `AZURE_SIGNING_ACCOUNT`.
    4. **Region:** UK South.
    5. **Pricing tier:** Basic.
    6. Click **Review + create** → **Create**.
@@ -386,7 +386,7 @@ Azure Artifact Signing used to be called **Trusted Signing**, and some Azure scr
    | Variable | Example |
    |---|---|
    | `AZURE_ENDPOINT` | `https://uks.codesigning.azure.net/` |
-   | `AZURE_SIGNING_ACCOUNT` | `projecttechme` |
+   | `AZURE_SIGNING_ACCOUNT` | `pocketdesigns` |
    | `AZURE_CERT_PROFILE` | `pocket-canvas` |
    | `AZURE_PUBLISHER_NAME` | `Project Tech Me Ltd`, exactly as the certificate's Subject Name |
 

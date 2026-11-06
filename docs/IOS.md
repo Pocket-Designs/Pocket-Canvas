@@ -1,6 +1,6 @@
 # Pocket-Canvas for iPhone and iPad
 
-Copyright © 2026 project-tech-me · project-tech-me@protonmail.com
+Copyright © 2026 Pocket-Designs · pocket-designs@proton.me
 
 The iPhone and iPad app shares its screens and features with the desktop and Android apps: boards, cards, templates, comments, the Recycle bin, password-protected boards, text formatting, lines, sketches (with Apple Pencil pressure), videos, exporting as a picture or PDF, and shared boards.
 

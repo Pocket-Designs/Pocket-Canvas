@@ -1,5 +1,5 @@
 /* Pocket-Canvas — board icons
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  *
  * These are the icons offered for boards (right-click a board card › Change icon…).
  *

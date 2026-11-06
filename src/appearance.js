@@ -1,5 +1,5 @@
 /* Pocket-Canvas — interface colours (Settings › Appearance)
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  *
  * Kept per device in store.ui.appearance = { accent, tint } (store.ui doesn't sync).
  *  - accent: buttons, highlights, the selected board, progress bars… (any #rrggbb)

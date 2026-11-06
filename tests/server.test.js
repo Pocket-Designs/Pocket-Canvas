@@ -1,6 +1,6 @@
 // Pocket-Canvas Server tests (plain Node): accounts, syncing your own devices, shared boards,
 // who's here, pictures and files, and keeping everything after a restart.
-// Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+// Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
 //   npm run test:server     (needs the server's packages: cd server && npm install)
 'use strict';
 const path = require('path');

@@ -1,5 +1,5 @@
 // Pocket-Canvas — end-to-end tests for version 1.1 features
-// Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+// Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
 //
 // Starts the real app with a throw-away data folder and checks: tables, sketches,
 // audio/video, picture placeholders, comments, templates, link previews, export to

@@ -1,5 +1,5 @@
 /* Pocket-Canvas — text formatting (font, size, bold, italic, underline, strikethrough, colour)
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  *
  * A small bar appears above the card while you type.
  *  - In notes it changes the selected text (or the whole note when nothing is selected).

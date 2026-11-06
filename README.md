@@ -4,9 +4,9 @@ A desktop app for organising ideas visually, in the style of Milanote: put notes
 
 Runs on Windows, Linux, macOS, Android, iPhone and iPad. Local-first: no account, no Pocket-Canvas cloud. Your boards stay on your own devices, or on a server you run yourself.
 
-**Author:** project-tech-me · project-tech-me@protonmail.com
+**Author:** Pocket-Designs · pocket-designs@proton.me
 
-© 2026 project-tech-me · MIT licence (see `LICENSE`; the logo and third-party licences are covered in `ASSETS-LICENCE.md`)
+© 2026 Pocket-Designs · MIT licence (see `LICENSE`; the logo and third-party licences are covered in `ASSETS-LICENCE.md`)
 
 ---
 

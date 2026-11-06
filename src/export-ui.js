@@ -1,5 +1,5 @@
 /* Pocket-Canvas — export a board as a picture (PNG) or PDF
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  */
 'use strict';
 

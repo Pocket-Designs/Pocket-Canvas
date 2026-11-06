@@ -1,5 +1,5 @@
 // Pocket-Canvas — sync merge tests (plain Node, no Electron needed)
-// Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+// Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
 // Run: node tests/merge.test.js
 'use strict';
 const S = require('../src/merge.js');

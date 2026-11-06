@@ -1,5 +1,5 @@
 // Pocket-Canvas smoke test
-// Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+// Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
 //
 // Starts the real app with a throw-away data folder, drives it with real mouse
 // and keyboard input, and checks the results. Run with:  npm test

@@ -1,5 +1,5 @@
 /* Pocket-Canvas — lines and arrows
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  *
  * A line has two ends. Each end is either attached to a card (from / to = card id)
  * or free on the board (from / to = null, fromPt / toPt = {x, y} in board units).

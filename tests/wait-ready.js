@@ -1,5 +1,5 @@
 // Pocket-Canvas test helper
-// Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+// Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
 //
 // Waits until the app window has finished starting, instead of guessing with a
 // fixed delay. Shared cloud machines (GitHub Actions) can take much longer to

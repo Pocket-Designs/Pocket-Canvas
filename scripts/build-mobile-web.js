@@ -1,5 +1,5 @@
 // Pocket-Canvas — prepares the web part of the Android, iPhone and iPad apps.
-// Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+// Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
 //
 // Copies src/ (the same screens the desktop app uses) to build/mobile-www/ and adds
 // mobile/api-mobile.js, which stands in for the desktop app's preload.js.

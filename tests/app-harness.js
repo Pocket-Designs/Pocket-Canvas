@@ -1,5 +1,5 @@
 // Pocket-Canvas — starts the app for the extension test.
-// Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+// Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
 // Uses a throw-away data folder, a given port, and answers "Allow" to the pairing question.
 const { app, dialog } = require('electron');
 const path = require('path');

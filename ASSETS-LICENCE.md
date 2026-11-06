@@ -20,9 +20,9 @@ A hand-drawn illustration of a corkboard with pinned notes, a photo, a colour pa
 | `android/app/src/main/res/mipmap-*/ic_launcher*.png`, `drawable*/splash.png` | Android app icons (normal, round and adaptive foreground) and splash screens, made from the same artwork |
 | `ios/App/App/Assets.xcassets/AppIcon.appiconset/*`, `Splash.imageset/*` | iPhone and iPad app icon and splash screen, made from the same artwork |
 
-**Artwork by project-tech-me.** Copyright © 2026 project-tech-me <project-tech-me@protonmail.com>. All rights reserved.
+**Artwork by Pocket-Designs.** Copyright © 2026 Pocket-Designs <pocket-designs@proton.me>. All rights reserved.
 
-The logo and app icon identify Pocket-Canvas, so they are **not** covered by the MIT licence. You may show them unchanged when talking about, linking to or redistributing Pocket-Canvas or its browser extension. Any other use, or a modified version, needs permission from project-tech-me.
+The logo and app icon identify Pocket-Canvas, so they are **not** covered by the MIT licence. You may show them unchanged when talking about, linking to or redistributing Pocket-Canvas or its browser extension. Any other use, or a modified version, needs permission from Pocket-Designs.
 
 ## 2. Other original assets (made for Pocket-Canvas)
 
@@ -41,7 +41,7 @@ These were created specifically for this project and are owned by the project.
 | Welcome board content | `src/app.js` (`defaultStore`) | Sample text shown on first launch. |
 | Template gallery previews | `src/templates.js` | Drawn automatically from each template's layout. |
 
-**Copyright © 2026 project-tech-me** <project-tech-me@protonmail.com>
+**Copyright © 2026 Pocket-Designs** <pocket-designs@proton.me>
 
 These assets are released under the same **MIT licence** as the rest of Pocket-Canvas (see `LICENSE`). You may reuse, modify and redistribute them as long as the copyright notice and licence are kept.
 

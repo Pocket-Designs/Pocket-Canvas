@@ -4,7 +4,7 @@ Save web pages, pictures, videos, sounds, screenshots and selected text from you
 
 One extension, one code base, for **Chrome, Microsoft Edge, Brave, Opera, Vivaldi and Firefox**. Use it from an add-on store, or load it straight into the browser without one.
 
-© 2026 project-tech-me · project-tech-me@protonmail.com · MIT licence (logo excluded; see `ASSETS-LICENCE.md`)
+© 2026 Pocket-Designs · pocket-designs@proton.me · MIT licence (logo excluded; see `ASSETS-LICENCE.md`)
 
 ---
 
@@ -14,7 +14,7 @@ One extension, one code base, for **Chrome, Microsoft Edge, Brave, Opera, Vivald
 - **Right-click menu:** *Save page*, *Save link*, *Save picture*, *Save video / audio*, *Save selected text*.
 - Everything you save lands in a **From the web** column on the chosen board.
 
-The Pocket-Canvas app must be open on the same computer. The extension talks only to the app at `http://127.0.0.1` (your own computer). It sends nothing to project-tech-me or anyone else.
+The Pocket-Canvas app must be open on the same computer. The extension talks only to the app at `http://127.0.0.1` (your own computer). It sends nothing to Pocket-Designs or anyone else.
 
 ---
 

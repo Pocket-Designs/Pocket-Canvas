@@ -1,5 +1,5 @@
 /* Pocket-Canvas — tables: moving rows and columns, colours and text styles
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  *
  * Styles are kept on the table card, lined up with its rows and columns:
  *   c.styles = { rows: [style|null…], cols: [style|null…], cells: [[style|null…]…] }

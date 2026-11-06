@@ -1,6 +1,6 @@
 # Pocket-Canvas Server
 
-Copyright © 2026 project-tech-me · project-tech-me@protonmail.com · MIT licence
+Copyright © 2026 Pocket-Designs · pocket-designs@proton.me · MIT licence
 
 Run your own server to:
 

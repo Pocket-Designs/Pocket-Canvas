@@ -1,6 +1,6 @@
 /* Pocket-Canvas for Android, iPhone and iPad — the same `window.api` the desktop app gets from preload.js,
  * built on Capacitor's native plugins instead of Electron.
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  *
  * Where things live on the phone:
  *   <app files>/Pocket-Canvas/pocket-canvas-data.json   your boards

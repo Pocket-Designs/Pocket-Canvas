@@ -1,4 +1,4 @@
-# Pocket-Canvas — Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+# Pocket-Canvas — Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
 name: Build installers
 
 # Runs when you push a version tag (e.g. v1.1.0) or press "Run workflow" on GitHub.
@@ -280,7 +280,7 @@ jobs:
           set -o pipefail
           xcrun safari-web-extension-converter build/safari-ext \
             --project-location build/safari --app-name "Pocket-Canvas Web Clipper" \
-            --bundle-identifier com.projecttechme.pocketcanvas.webclipper \
+            --bundle-identifier com.pocketdesigns.pocketcanvas.webclipper \
             --macos-only --copy-resources --no-open --no-prompt --force 2>&1 | tee dist/safari-converter-report.txt
       - name: Check the converter found nothing unsupported
         run: |

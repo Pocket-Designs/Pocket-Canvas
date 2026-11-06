@@ -1,5 +1,5 @@
 /* Pocket-Canvas — sync merge engine
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  *
  * Shared by the interface (window.PCSync) and the tests (require('./src/merge.js')).
  *

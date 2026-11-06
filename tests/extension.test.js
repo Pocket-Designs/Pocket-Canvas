@@ -1,5 +1,5 @@
 // Pocket-Canvas — browser extension test in a real Chromium browser
-// Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+// Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
 //
 // Starts the Pocket-Canvas app, loads the extension into Chromium (via Playwright),
 // connects them and saves things from the browser.

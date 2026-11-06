@@ -1,5 +1,5 @@
 /* Pocket-Canvas — names for colours
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  *
  * colourName(hex) gives a name that is true to the colour:
  *  - If the colour is (to the eye) the same as a well-known named colour, you get that name:

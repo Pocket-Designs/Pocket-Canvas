@@ -1,5 +1,5 @@
 /* Pocket-Canvas — touch screens and the Android app
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  *
  * On any touch screen:
  *   one finger on an empty part of the board  → move around (pan)

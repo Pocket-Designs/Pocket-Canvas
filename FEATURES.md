@@ -1,6 +1,6 @@
 # Pocket-Canvas — Feature List
 
-Version 1.5.0 · © 2026 project-tech-me
+Version 1.5.0 · © 2026 Pocket-Designs
 
 Pocket-Canvas is a desktop, Android, iPhone and iPad app for organising ideas visually. Put notes, pictures, links, to-do lists, tables, sketches, audio, video and files on an endless board, then group, connect and nest them however you think. Start from a template, keep your boards in step across all your devices, share boards with other people and edit them together, and save things straight from your web browser.
 

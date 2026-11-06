@@ -1,5 +1,5 @@
 /* Pocket-Canvas — scroll bars along the bottom and right of the board
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  *
  * They appear when something on the board is out of view, and show where you are.
  * Drag the handle to move along; click the track either side of it to jump a screen.

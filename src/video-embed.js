@@ -1,5 +1,5 @@
 /* Pocket-Canvas — playing online videos (YouTube, Vimeo, Dailymotion, Loom) inside a link card
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  *
  * A link card whose address is a video shows the video's picture with a Play button.
  * Nothing is loaded from the video site until you press Play (YouTube uses its

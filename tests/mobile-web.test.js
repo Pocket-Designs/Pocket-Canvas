@@ -1,5 +1,5 @@
 // Pocket-Canvas — tests the Android app's screens in Chromium, with a stand-in for the phone.
-// Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+// Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
 //
 // Builds build/mobile-www (exactly what goes into the Android, iPhone and iPad apps), then runs it in a phone-sized,
 // touch-screen Chromium window. Capacitor's native plugins are replaced by a pretend phone

@@ -1,5 +1,5 @@
 # Pocket-Canvas Server
-# Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+# Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
 FROM node:22-alpine
 WORKDIR /app
 COPY package.json package-lock.json* ./

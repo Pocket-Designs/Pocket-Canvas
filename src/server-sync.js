@@ -1,5 +1,5 @@
 /* Pocket-Canvas — syncing through your own Pocket-Canvas Server, and boards shared with other people
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  *
  * The server (server/pocket-canvas-server.js) passes copies between devices and people:
  *   • scope "me": all your boards, between your own devices (like folder sync)

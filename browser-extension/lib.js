@@ -1,5 +1,5 @@
 /* Pocket-Canvas Web Clipper — talking to the Pocket-Canvas app on this computer
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  *
  * Works in Chrome, Edge, Brave, Opera, Vivaldi (chrome.*) and Firefox (browser.*).
  * Everything goes to http://127.0.0.1 — your own computer. Nothing is sent anywhere else.

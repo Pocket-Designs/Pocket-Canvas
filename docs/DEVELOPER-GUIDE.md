@@ -2,7 +2,7 @@
 
 How Pocket-Canvas is built, how to run and test it, how to change it, and how to ship a release.
 
-Version 1.5.0 · © 2026 project-tech-me · project-tech-me@protonmail.com · MIT licence (logo excluded; see `ASSETS-LICENCE.md`)
+Version 1.5.0 · © 2026 Pocket-Designs · pocket-designs@proton.me · MIT licence (logo excluded; see `ASSETS-LICENCE.md`)
 
 ### Version history
 
@@ -73,7 +73,7 @@ Design choices that shape the code:
 **You need:** [Node.js](https://nodejs.org) 18 or newer (20 LTS recommended) and Git.
 
 ```bash
-git clone https://github.com/Projects-me-design/Pocket-Canvas.git
+git clone https://github.com/Pocket-Designs/Pocket-Canvas.git
 cd Pocket-Canvas
 npm install
 npm start
@@ -773,7 +773,7 @@ People's boards live in `pocket-canvas-data.json` and in sync folders for years,
 - **State first, then DOM:** change `store`, then re-render, then `scheduleSave()`. Don't keep state only in the DOM.
 - **Undo:** every user-visible change must be undoable (`checkpoint()` before it, or snapshot + `pushUndo()` around a gesture).
 - **Copyright header** at the top of each source file:
-  `Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>`
+  `Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>`
 - **Commits:** short imperative subject ("Add quote card", "Fix column drop index").
 - **Docs:** update `FEATURES.md` and `docs/USER-GUIDE.md` in the same change as the feature.
 
@@ -812,4 +812,4 @@ People's boards live in `pocket-canvas-data.json` and in sync folders for years,
 
 ---
 
-Questions or contributions: **project-tech-me@protonmail.com**
+Questions or contributions: **pocket-designs@proton.me**

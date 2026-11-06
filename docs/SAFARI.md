@@ -1,6 +1,6 @@
 # The web clipper in Safari (Mac)
 
-Copyright © 2026 project-tech-me · project-tech-me@protonmail.com
+Copyright © 2026 Pocket-Designs · pocket-designs@proton.me
 
 Safari runs the same browser extension as Chrome, Edge and Firefox. Apple's converter wraps it in a small Mac app, **Pocket-Canvas Web Clipper**, which carries the extension. GitHub makes that app in the **safari** job of the workflow.
 

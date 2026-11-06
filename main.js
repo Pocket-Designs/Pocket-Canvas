@@ -1,5 +1,5 @@
 // Pocket-Canvas — main process
-// Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+// Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
 const { app, BrowserWindow, ipcMain, dialog, shell, Menu, nativeImage, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
@@ -167,7 +167,7 @@ function buildMenu() {
             icon: nativeImage.createFromPath(path.join(__dirname, 'src', 'icon.png')).resize({ width: 96, height: 96 }),
             title: 'About Pocket-Canvas',
             message: `Pocket-Canvas ${app.getVersion()}`,
-            detail: 'A visual board for organising ideas.\n\n© 2026 project-tech-me\nproject-tech-me@protonmail.com'
+            detail: 'A visual board for organising ideas.\n\n© 2026 Pocket-Designs\npocket-designs@proton.me'
           })
         }
       ]

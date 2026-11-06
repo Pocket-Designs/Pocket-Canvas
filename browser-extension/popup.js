@@ -1,5 +1,5 @@
 /* Pocket-Canvas Web Clipper — toolbar popup
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  */
 'use strict';
 const $ = (id) => document.getElementById(id);

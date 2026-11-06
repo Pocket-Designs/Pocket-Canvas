@@ -5,10 +5,10 @@ def pkg = new groovy.json.JsonSlurper().parse(file('../../package.json'))
 def (vMajor, vMinor, vPatch) = pkg.version.tokenize('.-').take(3).collect { it.toInteger() }
 
 android {
-    namespace = "com.projecttechme.pocketcanvas"
+    namespace = "com.pocketdesigns.pocketcanvas"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.projecttechme.pocketcanvas"
+        applicationId "com.pocketdesigns.pocketcanvas"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode vMajor * 10000 + vMinor * 100 + vPatch

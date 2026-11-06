@@ -1,5 +1,5 @@
 /* Pocket-Canvas — tables, sketches, audio/video, picture placeholders and link previews
- * Copyright (c) 2026 project-tech-me <project-tech-me@protonmail.com>
+ * Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
  */
 'use strict';
 
