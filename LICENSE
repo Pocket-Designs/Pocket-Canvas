@@ -19,11 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-------------------------------------------------------------------------
-Exception — Product Icon
-
-The MIT Licence above does not apply to the product icon files
-(build/icon.png, build/icon.ico, src/icon.png). They are custom images
-created by MJO-Art (workmjo@gmail.com) for this project and can not be
-altered or used without the express permission of the Artist.
-See ASSET-LICENSES.md.

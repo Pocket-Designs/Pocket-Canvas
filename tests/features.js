@@ -83,7 +83,8 @@ const TOKEN = crypto.randomBytes(32).toString('hex');
 let PORT = 0;
 
 const results = [];
-const check = (name, ok) => { results.push({ name, ok: !!ok }); if (process.env.PC_VERBOSE) console.log((ok ? 'pass  ' : 'FAIL  ') + name); };
+let lastCheck = '(start-up)';
+const check = (name, ok) => { results.push({ name, ok: !!ok }); lastCheck = name.split('\n')[0]; if (process.env.PC_VERBOSE) console.log((ok ? 'pass  ' : 'FAIL  ') + name); };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 async function until(fn, ms = 8000) { const t = Date.now(); while (Date.now() - t < ms) { if (await fn()) return true; await sleep(150); } return false; }
 
@@ -119,7 +120,17 @@ function request(method, p, { body, token, origin } = {}) {
   await app.whenReady();
   const wc = (await waitForApp()).webContents;
   const errors = [];
-  wc.on('console-message', (...a) => { if (a[1] >= 3) errors.push(a[2]); });
+  // Errors from the app's own files count; errors from web pages shown inside it (such as a YouTube
+  // player in a video card) aren't ours, so they're only listed.
+  const outside = [];
+  wc.on('console-message', (_e, level, message, line, source) => {
+    if (level < 3) return;
+    const where = source ? `${source.replace(/^file:\/\/.*\/src\//, 'src/')}:${line}` : 'unknown source';
+    const entry = `${message || '(no message)'}  [${where}; after “${lastCheck}”]`;
+    if (source && !/^file:/i.test(source)) { outside.push(entry); return; }
+    errors.push(entry);
+    console.log('SCRIPT ERROR: ' + entry);
+  });
   const ex = (js) => wc.executeJavaScript(js);
   const centre = (sel) => ex(`(()=>{const e=document.querySelector(${JSON.stringify(sel)});if(!e)return null;const r=e.getBoundingClientRect();return [Math.round(r.left+r.width/2),Math.round(r.top+r.height/2)]})()`);
   const mouse = async (type, x, y, extra = {}) => { wc.sendInputEvent({ type, x, y, button: 'left', clickCount: 1, ...extra }); await sleep(25); };
@@ -1052,8 +1063,9 @@ function request(method, p, { body, token, origin } = {}) {
     await ex(`openSettings('clipper')`); await sleep(500); await shot('settings-clipper.png');
     await ex(`settingsModal && settingsModal.close()`);
 
-    check('no script errors in the window', errors.length === 0);
+    check('no script errors in the window' + (errors.length ? ':\n      ' + errors.slice(0, 10).join('\n      ') : ''), errors.length === 0);
     if (errors.length) console.log('Script errors:\n  ' + errors.join('\n  '));
+    if (outside.length) console.log(`(${outside.length} message${outside.length === 1 ? '' : 's'} from web pages inside the app, not counted:\n  ${outside.slice(0, 5).join('\n  ')})`);
   } catch (err) {
     check('test run finished without crashing: ' + err.stack, false);
   }
