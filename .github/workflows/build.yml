@@ -312,6 +312,24 @@ jobs:
           echo "Project: $PROJ"
           xcodebuild -list -project "$PROJ" | tee dist/safari-schemes.txt
           # the app's scheme is the one without "Extension" in its name
+          # The extension's ID must start with the app's ID ("…webclipper.Extension"); set both explicitly,
+          # because the converter can derive the extension's ID from the app's name instead.
+          node -e "
+            const fs = require('fs'), f = process.argv[1], APP = 'com.pocketdesigns.pocketcanvas.webclipper';
+            let t = fs.readFileSync(f, 'utf8');
+            t = t.replace(/(isa = XCBuildConfiguration;[\\s\\S]*?buildSettings = \\{)([\\s\\S]*?)(\\n\\t\\t\\t\\};)/g, (m, a, body, z) => {
+              if (!/PRODUCT_BUNDLE_IDENTIFIER/.test(body)) return m;
+              const ext = /Extension\\.entitlements|Extension\\/Info\\.plist|\\.Extension\"?;/.test(body);
+              return a + body.replace(/PRODUCT_BUNDLE_IDENTIFIER = [^;]*;/, 'PRODUCT_BUNDLE_IDENTIFIER = ' + (ext ? APP + '.Extension' : APP) + ';') + z;
+            });
+            fs.writeFileSync(f, t);
+          " "$PROJ/project.pbxproj"
+          echo "Bundle IDs now:"; grep -n "PRODUCT_BUNDLE_IDENTIFIER" "$PROJ/project.pbxproj"
+          # the app's code names the extension's ID too (to show its status and open Safari's settings)
+          grep -rl --include=*.swift "extensionBundleIdentifier" build/safari | while IFS= read -r f; do
+            sed -i '' -E 's/(let extensionBundleIdentifier = ")[^"]*"/\1com.pocketdesigns.pocketcanvas.webclipper.Extension"/' "$f"
+            grep -n "extensionBundleIdentifier =" "$f"
+          done
           SCHEME=$(xcodebuild -list -json -project "$PROJ" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const l=JSON.parse(s).project.schemes;console.log(l.find(x=>!/extension/i.test(x))||l[0])})")
           echo "Scheme: $SCHEME"
           # ad-hoc signed ("-"): no Apple account needed, and Safari can run it with "Allow Unsigned Extensions"
