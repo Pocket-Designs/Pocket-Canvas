@@ -1,0 +1,58 @@
+<!doctype html>
+<!-- Pocket-Canvas Web Clipper — Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me> -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Pocket-Canvas</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="icons/icon-32.png" alt="">
+    <span>Pocket-Canvas</span>
+    <a href="#" id="open-options" title="Options">Options</a>
+  </header>
+
+  <section id="loading" class="pane"><p class="muted">Looking for Pocket-Canvas…</p></section>
+
+  <section id="offline" class="pane" hidden>
+    <h2>Pocket-Canvas isn’t open</h2>
+    <p>Start the Pocket-Canvas app on this computer, then try again.</p>
+    <p class="muted small" id="offline-detail"></p>
+    <button id="retry" class="primary">Try again</button>
+  </section>
+
+  <section id="connect" class="pane" hidden>
+    <h2>Connect this browser</h2>
+    <p>Pocket-Canvas will ask you to allow this browser to save to your boards. You only need to do this once.</p>
+    <button id="connect-btn" class="primary">Connect</button>
+    <p id="connect-msg" class="muted small"></p>
+  </section>
+
+  <section id="ready" class="pane" hidden>
+    <div class="page">
+      <img id="fav" alt="">
+      <div>
+        <div id="page-title"></div>
+        <div id="page-url" class="muted small"></div>
+      </div>
+    </div>
+    <label class="field">Save to board
+      <select id="board"></select>
+    </label>
+    <label class="field"><span>Note <span class="muted">(optional, added as a comment)</span></span>
+      <textarea id="note" rows="2" placeholder="Why are you saving this?"></textarea>
+    </label>
+    <div class="actions">
+      <button id="save-page" class="primary">Save page</button>
+      <button id="save-selection" disabled title="Select some text on the page first">Save selected text</button>
+      <button id="save-shot">Save screenshot</button>
+    </div>
+    <p class="muted small tip">Tip: right-click a picture, video, link or selected text to save just that.</p>
+  </section>
+
+  <div id="status" hidden></div>
+  <script src="lib.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
