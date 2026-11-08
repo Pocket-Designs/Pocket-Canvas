@@ -1,0 +1,26 @@
+# Pocket-Canvas Server with automatic HTTPS (Caddy).
+# 1. Point a domain name (e.g. boards.example.com) at this machine.
+# 2. Put that name in the Caddyfile next to this file, and choose a JOIN_CODE below.
+# 3. docker compose up -d
+services:
+  pocket-canvas:
+    build: .
+    restart: unless-stopped
+    environment:
+      - JOIN_CODE=change-me-to-something-secret
+    volumes:
+      - ./data:/data
+    # Home network only, without HTTPS (see README, option C): remove the caddy part below and add
+    # ports:
+    #   - "8787:8787"
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy-data:/data
+    depends_on:
+      - pocket-canvas

@@ -1,0 +1,17 @@
+{
+  "name": "pocket-canvas-server",
+  "version": "1.5.0",
+  "description": "Sync Pocket-Canvas boards through your own server, and share boards to edit them together.",
+  "main": "pocket-canvas-server.js",
+  "bin": { "pocket-canvas-server": "pocket-canvas-server.js" },
+  "scripts": {
+    "start": "node pocket-canvas-server.js",
+    "test": "node ../tests/server.test.js"
+  },
+  "author": "Pocket-Designs <pocket-designs@proton.me>",
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
