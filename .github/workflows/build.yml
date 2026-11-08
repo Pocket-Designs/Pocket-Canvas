@@ -1,118 +1,357 @@
-name: Build
+# Pocket-Canvas — Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me>
+name: Build installers
 
-# What runs when:
-#   push to main / pull request  -> tests, and a build check on Windows and Linux.
-#                                   Nothing is stored, so no Actions storage is used.
-#   tag v1.2.3 (git tag v0.1.0 && git push --tags)
-#                                -> installers are attached to a GitHub Release. Release
-#                                   files do NOT count towards the Actions storage quota.
-#                                   (The server image is built on your own server by
-#                                   docker compose, so it is not published here.)
-#   "Run workflow" button (Actions tab)
-#                                -> installers are put on a "Test build" pre-release
-#                                   (replaced each time). No artifacts are stored at all,
-#                                   so the Actions storage quota is never touched.
+# Runs when you push a version tag (e.g. v1.1.0) or press "Run workflow" on GitHub.
 on:
   push:
-    branches: [main]
     tags: ['v*']
-  pull_request:
   workflow_dispatch:
+    inputs:
+      mac:
+        description: 'Also build the Mac, iPhone/iPad and Safari versions (untick if GitHub''s Mac machines are busy or down)'
+        type: boolean
+        default: true
+      mac_machine:
+        description: 'Which GitHub Mac machines to use. If Apple-chip ones are busy ("not acquired"), try Intel.'
+        type: choice
+        options: [macos-26, macos-15-intel]
+        default: macos-26
 
 permissions:
   contents: write
 
 env:
-  # Where installers go: the version's release for a tag, otherwise the rolling test build.
-  RELEASE_TAG: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'test-build' }}
-
-concurrency:
-  group: build-${{ github.ref }}
-  cancel-in-progress: true
+  CI: true
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
+          cache: npm
+      - run: npm ci || npm install
+      - name: Install the server's packages
+        run: cd server && (npm ci || npm install)
+      - name: Sync merge tests
+        run: node tests/merge.test.js
       - name: Server tests
-        working-directory: server
+        run: node tests/server.test.js
+      - name: Install the libraries Electron needs on Linux
+        run: sudo apt-get update && sudo apt-get install -y xvfb libnss3 libgbm1 libasound2t64 libgtk-3-0t64
+      - name: Smoke test
+        run: xvfb-run -a -s "-screen 0 1400x900x24" npx electron --no-sandbox tests/smoke.js
+      - name: Feature tests
+        run: xvfb-run -a -s "-screen 0 1400x900x24" npx electron --no-sandbox tests/features.js
+      - name: Browser extension test
         run: |
-          npm ci
-          npm test
-      - name: App tests
-        working-directory: app
-        env:
-          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libxtst-dev libpng-dev
-          npm ci
-          npm test
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+          xvfb-run -a -s "-screen 0 1400x900x24" node tests/extension.test.js
+      - name: Android app screens test
+        run: node tests/mobile-web.test.js
+      - name: Package the browser extension
+        run: node scripts/build-extension.js
+      - uses: actions/upload-artifact@v7
+        with:
+          name: pocket-canvas-browser-extension
+          path: dist/*.zip
+      - name: Attach extension to GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v3
+        with:
+          files: dist/*.zip
 
-  # Creates the GitHub Release once, so the Windows and Linux jobs can both add files to it.
-  release:
+  build:
     needs: test
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-22.04
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        # macos-26 is named directly (not macos-latest) so the build doesn't change when GitHub moves the label.
+        os: ${{ fromJSON((github.event_name == 'workflow_dispatch' && !inputs.mac) && '["windows-latest","ubuntu-24.04"]' || format('["windows-latest","ubuntu-24.04","{0}"]', inputs.mac_machine || 'macos-26')) }}
+    runs-on: ${{ matrix.os }}
     steps:
-      - name: Create version release
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: |
-          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 \
-            || gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --title "Pocket-Connect $RELEASE_TAG" --generate-notes --verify-tag
-      - name: Create test-build pre-release (replaces the previous one)
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          gh release delete "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes 2>/dev/null || true
-          gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
-            --title "Test build (${GITHUB_SHA::7})" \
-            --notes "Untested build from $GITHUB_REF_NAME at ${GITHUB_SHA::7}. Replaced every time the workflow is run by hand. For proper versions see the other releases."
-
-  linux:
-    needs: [test, release]
-    if: ${{ !cancelled() && needs.test.result == 'success' && needs.release.result != 'failure' && github.event_name != 'pull_request' }}
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
-      - name: Build AppImage and .deb
-        working-directory: app
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libxtst-dev libpng-dev rpm
-          npm ci
-          npm run dist:linux
-      - name: Attach installers to the release
-        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "$RELEASE_TAG" app/dist/*.AppImage app/dist/*.deb --clobber --repo "$GITHUB_REPOSITORY"
-
-  windows:
-    needs: [test, release]
-    if: ${{ !cancelled() && needs.test.result == 'success' && needs.release.result != 'failure' && github.event_name != 'pull_request' }}
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-      - name: Build installer (.exe) and .msi
-        working-directory: app
-        run: |
-          npm ci
-          npm run dist:win
-      - name: Attach installers to the release
-        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+          cache: npm
+      - run: npm ci || npm install
+      # Signing switches itself on when the matching secrets exist
+      # (see docs/RELEASING.md). With no secrets, unsigned installers are built.
+      - name: Build installer
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "$RELEASE_TAG" app/dist/*.exe app/dist/*.msi --clobber --repo "$GITHUB_REPOSITORY"
+          # macOS: Developer ID Application certificate + notarisation
+          MAC_CERTIFICATE: ${{ secrets.MAC_CERTIFICATE }}
+          MAC_CERTIFICATE_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # Windows option A: Azure Artifact Signing
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_ENDPOINT: ${{ vars.AZURE_ENDPOINT }}
+          AZURE_SIGNING_ACCOUNT: ${{ vars.AZURE_SIGNING_ACCOUNT }}
+          AZURE_CERT_PROFILE: ${{ vars.AZURE_CERT_PROFILE }}
+          AZURE_PUBLISHER_NAME: ${{ vars.AZURE_PUBLISHER_NAME }}
+          # Windows option B: a .pfx certificate file (testing or older certificates)
+          WIN_CERTIFICATE: ${{ secrets.WIN_CERTIFICATE }}
+          WIN_CERTIFICATE_PASSWORD: ${{ secrets.WIN_CERTIFICATE_PASSWORD }}
+        run: |
+          args=(--publish never)
+          signing=no
+          if [ "$RUNNER_OS" = "macOS" ] && [ -n "$MAC_CERTIFICATE" ]; then
+            export CSC_LINK="$MAC_CERTIFICATE" CSC_KEY_PASSWORD="$MAC_CERTIFICATE_PASSWORD"
+            signing=yes
+            if [ -z "$APPLE_ID" ]; then
+              echo "::warning::Signed but NOT notarised: APPLE_ID secret is missing."
+              unset APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID
+            fi
+          fi
+          if [ "$RUNNER_OS" = "Windows" ] && [ -n "$AZURE_CLIENT_ID" ]; then
+            args+=("-c.win.azureSignOptions.endpoint=$AZURE_ENDPOINT"
+                   "-c.win.azureSignOptions.codeSigningAccountName=$AZURE_SIGNING_ACCOUNT"
+                   "-c.win.azureSignOptions.certificateProfileName=$AZURE_CERT_PROFILE"
+                   "-c.win.azureSignOptions.publisherName=$AZURE_PUBLISHER_NAME")
+            signing=yes
+          elif [ "$RUNNER_OS" = "Windows" ] && [ -n "$WIN_CERTIFICATE" ]; then
+            export WIN_CSC_LINK="$WIN_CERTIFICATE" WIN_CSC_KEY_PASSWORD="$WIN_CERTIFICATE_PASSWORD"
+            signing=yes
+          fi
+          if [ "$signing" = "no" ]; then
+            export CSC_IDENTITY_AUTO_DISCOVERY=false
+            echo "::notice::No signing secrets for $RUNNER_OS - building unsigned."
+          fi
+          unset MAC_CERTIFICATE MAC_CERTIFICATE_PASSWORD WIN_CERTIFICATE WIN_CERTIFICATE_PASSWORD
+          npx electron-builder "${args[@]}"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: pocket-canvas-${{ matrix.os }}
+          path: |
+            dist/*.exe
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.dmg
+          if-no-files-found: ignore
+      - name: Attach to GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            dist/*.exe
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.dmg
+
+  # The Android app (APK). Built from the same screens as the desktop app; see docs/ANDROID.md.
+  android:
+    needs: test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+      - run: npm ci || npm install
+      - name: Prepare the app's screens
+        run: |
+          node scripts/build-mobile-web.js
+          npx cap sync android
+      - name: Use your own signing key, if you've added one
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+            echo "ANDROID_KEYSTORE_FILE=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
+            echo "::notice::Signing the APK with your own key."
+          else
+            echo "::notice::No ANDROID_KEYSTORE_BASE64 secret - signing with the test key."
+          fi
+      - name: Build the APK
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleRelease
+          VERSION=$(node -p "require('../package.json').version")
+          mkdir -p ../dist
+          cp app/build/outputs/apk/release/app-release.apk "../dist/Pocket-Canvas-$VERSION-android.apk"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: pocket-canvas-android
+          path: dist/*.apk
+      - name: Attach to GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v3
+        with:
+          files: dist/*.apk
+
+  # iPhone and iPad app (Capacitor). Builds for the iOS Simulator, plus an unsigned .ipa you can
+  # sign and install with your own Apple ID (see docs/IOS.md).
+  ios:
+    needs: test
+    if: github.event_name != 'workflow_dispatch' || inputs.mac
+    timeout-minutes: 60
+    runs-on: ${{ inputs.mac_machine || 'macos-26' }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Use the newest Xcode on this machine
+        run: |
+          XC=$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$XC" ]; then sudo xcode-select -s "$XC/Contents/Developer"; fi
+          xcodebuild -version
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci || npm install
+      - name: Prepare the app's screens
+        run: |
+          node scripts/build-mobile-web.js
+          npx cap sync ios
+      - name: Set the version from package.json
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          BUILD=$(node -p "const [a,b,c]=require('./package.json').version.split('.').map(Number); a*10000+b*100+c")
+          sed -i '' -e "s/MARKETING_VERSION = [^;]*;/MARKETING_VERSION = $VERSION;/" -e "s/CURRENT_PROJECT_VERSION = [^;]*;/CURRENT_PROJECT_VERSION = $BUILD;/" ios/App/App.xcodeproj/project.pbxproj
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+      - name: Build for the iOS Simulator
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/ios-sim CODE_SIGNING_ALLOWED=NO build
+          mkdir -p dist
+          (cd build/ios-sim/Build/Products/Debug-iphonesimulator && zip -qry "$GITHUB_WORKSPACE/dist/Pocket-Canvas-$VERSION-ios-simulator.zip" App.app)
+      - name: Build an unsigned app for iPhone and iPad
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath build/ios-device CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
+          mkdir -p build/ipa/Payload
+          cp -R build/ios-device/Build/Products/Release-iphoneos/App.app build/ipa/Payload/
+          (cd build/ipa && zip -qry "$GITHUB_WORKSPACE/dist/Pocket-Canvas-$VERSION-ios-unsigned.ipa" Payload)
+      - uses: actions/upload-artifact@v7
+        with:
+          name: pocket-canvas-ios
+          path: |
+            dist/*.ipa
+            dist/*-ios-simulator.zip
+      - name: Attach to GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            dist/*.ipa
+            dist/*-ios-simulator.zip
+
+  # The browser extension for Safari on the Mac: Apple's converter turns the same extension into
+  # a small Mac app that carries it. The converter's report is saved alongside (see docs/SAFARI.md).
+  safari:
+    needs: test
+    if: github.event_name != 'workflow_dispatch' || inputs.mac
+    timeout-minutes: 45
+    runs-on: ${{ inputs.mac_machine || 'macos-26' }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Use the newest Xcode on this machine
+        run: |
+          XC=$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$XC" ]; then sudo xcode-select -s "$XC/Contents/Developer"; fi
+          xcodebuild -version
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Make a Safari copy of the extension
+        # Safari doesn't use the Chrome- and Firefox-only settings, so they're left out of its copy
+        # (otherwise the converter reports them as unsupported).
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          node scripts/build-extension.js
+          rm -rf build/safari-ext && mkdir -p build dist && cp -R browser-extension build/safari-ext
+          rm -f build/safari-ext/README.md
+          node -e "
+            const fs = require('fs'), p = 'build/safari-ext/manifest.json', m = JSON.parse(fs.readFileSync(p, 'utf8'));
+            delete m.minimum_chrome_version; delete m.browser_specific_settings;
+            m.background = { service_worker: 'background.js' };   // background.js loads lib.js itself
+            fs.writeFileSync(p, JSON.stringify(m, null, 2));"
+      - name: Convert the extension for Safari
+        run: |
+          set -o pipefail
+          xcrun safari-web-extension-converter build/safari-ext \
+            --project-location build/safari --app-name "Pocket-Canvas Web Clipper" \
+            --bundle-identifier com.pocketdesigns.pocketcanvas.webclipper \
+            --macos-only --copy-resources --no-open --no-prompt --force 2>&1 | tee dist/safari-converter-report.txt
+      - name: Check the converter found nothing unsupported
+        run: |
+          if grep -iE "not supported|unsupported" dist/safari-converter-report.txt; then
+            echo "::warning::Safari doesn't support everything in the extension. See safari-converter-report.txt."
+          else
+            echo "Safari supports every key and permission the extension uses."
+          fi
+      - name: Build the Safari extension app
+        run: |
+          set -o pipefail
+          PROJ=$(find build/safari -maxdepth 3 -name "*.xcodeproj" | head -1)
+          if [ -z "$PROJ" ]; then echo "::error::The converter didn't make an Xcode project. See safari-converter-report.txt."; exit 1; fi
+          echo "Project: $PROJ"
+          xcodebuild -list -project "$PROJ" | tee dist/safari-schemes.txt
+          # the app's scheme is the one without "Extension" in its name
+          # The extension's ID must start with the app's ID ("…webclipper.Extension"); set both explicitly,
+          # because the converter can derive the extension's ID from the app's name instead.
+          node -e "
+            const fs = require('fs'), f = process.argv[1], APP = 'com.pocketdesigns.pocketcanvas.webclipper';
+            let t = fs.readFileSync(f, 'utf8');
+            t = t.replace(/(isa = XCBuildConfiguration;[\\s\\S]*?buildSettings = \\{)([\\s\\S]*?)(\\n\\t\\t\\t\\};)/g, (m, a, body, z) => {
+              if (!/PRODUCT_BUNDLE_IDENTIFIER/.test(body)) return m;
+              const ext = /Extension\\.entitlements|Extension\\/Info\\.plist|\\.Extension\"?;/.test(body);
+              return a + body.replace(/PRODUCT_BUNDLE_IDENTIFIER = [^;]*;/, 'PRODUCT_BUNDLE_IDENTIFIER = ' + (ext ? APP + '.Extension' : APP) + ';') + z;
+            });
+            fs.writeFileSync(f, t);
+          " "$PROJ/project.pbxproj"
+          echo "Bundle IDs now:"; grep -n "PRODUCT_BUNDLE_IDENTIFIER" "$PROJ/project.pbxproj"
+          # the app's code names the extension's ID too (to show its status and open Safari's settings)
+          grep -rl --include=*.swift "extensionBundleIdentifier" build/safari | while IFS= read -r f; do
+            sed -i '' -E 's/(let extensionBundleIdentifier = ")[^"]*"/\1com.pocketdesigns.pocketcanvas.webclipper.Extension"/' "$f"
+            grep -n "extensionBundleIdentifier =" "$f"
+          done
+          SCHEME=$(xcodebuild -list -json -project "$PROJ" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const l=JSON.parse(s).project.schemes;console.log(l.find(x=>!/extension/i.test(x))||l[0])})")
+          echo "Scheme: $SCHEME"
+          # ad-hoc signed ("-"): no Apple account needed, and Safari can run it with "Allow Unsigned Extensions"
+          if ! xcodebuild -project "$PROJ" -scheme "$SCHEME" -configuration Release -destination 'generic/platform=macOS' \
+              -derivedDataPath build/safari-dd CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM="" \
+              CODE_SIGNING_REQUIRED=NO ENABLE_HARDENED_RUNTIME=NO build > dist/safari-build-log.txt 2>&1; then
+            grep -E "error:|\*\* BUILD FAILED" dist/safari-build-log.txt | head -20 | while IFS= read -r line; do echo "::error::$line"; done
+            tail -40 dist/safari-build-log.txt
+            exit 1
+          fi
+          APP=$(find build/safari-dd/Build/Products/Release -maxdepth 1 -name "*.app" | head -1)
+          echo "Built: $APP"
+          (cd "$(dirname "$APP")" && zip -qry "$GITHUB_WORKSPACE/dist/Pocket-Canvas-Web-Clipper-$VERSION-safari.zip" "$(basename "$APP")")
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: pocket-canvas-safari-extension
+          path: |
+            dist/*-safari.zip
+            dist/safari-*.txt
+      - name: Attach to GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v3
+        with:
+          files: dist/*-safari.zip
