@@ -1,9 +1,0 @@
-node_modules/
-app/dist/
-app/ui/vendor/
-server/data/
-deploy/.env
-deploy/certs/*
-!deploy/certs/.gitkeep
-*.log
-.DS_Store
