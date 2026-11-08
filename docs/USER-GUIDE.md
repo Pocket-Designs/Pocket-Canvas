@@ -43,7 +43,7 @@ This guide is for anyone using the app. You don't need any technical knowledge.
 **Version 1.1**
 - Sync between computers, templates, comments, link previews, tables, audio and video, sketches, PDF/picture export and the browser extension
 
-Version 1.5.0 · © 2026 Pocket-Designs · pocket-designs@proton.me
+Version 1.5.1 · © 2026 Pocket-Designs · pocket-designs@proton.me
 
 ---
 

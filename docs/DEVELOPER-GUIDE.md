@@ -2,7 +2,7 @@
 
 How Pocket-Canvas is built, how to run and test it, how to change it, and how to ship a release.
 
-Version 1.5.0 · © 2026 Pocket-Designs · pocket-designs@proton.me · MIT licence (logo excluded; see `ASSETS-LICENCE.md`)
+Version 1.5.1 · © 2026 Pocket-Designs · pocket-designs@proton.me · MIT licence (logo excluded; see `ASSETS-LICENCE.md`)
 
 ### Version history
 

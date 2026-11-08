@@ -28,7 +28,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { WebSocketServer } = require('ws');
 
-const VERSION = '1.5.0';
+const VERSION = '1.5.1';
 const PROTOCOL = 1;
 
 function createServer(opts = {}) {

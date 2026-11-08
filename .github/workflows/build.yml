@@ -28,6 +28,14 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
+      - name: Check the tag matches the version number
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          WANT="v$(node -p "require('./package.json').version")"
+          if [ "$GITHUB_REF_NAME" != "$WANT" ]; then
+            echo "::error::The tag is $GITHUB_REF_NAME but package.json says $WANT. Set \"version\" in package.json (and browser-extension/manifest.json, server/package.json) to match, commit, then tag that commit."
+            exit 1
+          fi
       - uses: actions/setup-node@v7
         with:
           node-version: 22
