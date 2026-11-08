@@ -1,0 +1,105 @@
+{
+  "name": "pocket-connect",
+  "productName": "Pocket-Connect",
+  "version": "0.1.0",
+  "description": "Secure remote desktop and remote console for Windows, Linux and Android",
+  "author": {
+    "name": "Pocket-Designs",
+    "email": "pocket-designs@proton.me"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/Pocket-Designs/Pocket-Connect",
+  "main": "main/main.js",
+  "scripts": {
+    "postinstall": "node scripts/vendor.js",
+    "start": "electron .",
+    "dist:linux": "electron-builder --linux AppImage deb --publish never",
+    "dist:win": "electron-builder --win nsis msi --publish never",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@nut-tree-fork/nut-js": "^4.2.6",
+    "node-pty": "^1.1.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@fontsource/jetbrains-mono": "^5.1.0",
+    "@fontsource/manrope": "^5.1.0",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
+    "electron": "^44.0.0",
+    "electron-builder": "^26.0.0",
+    "qrcode-generator": "^1.4.4",
+    "scrypt-js": "^3.0.1"
+  },
+  "build": {
+    "appId": "com.pocketdesigns.pocketconnect",
+    "productName": "Pocket-Connect",
+    "copyright": "Copyright \u00a9 2026 Pocket-Designs",
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "files": [
+      "main/**",
+      "ui/**",
+      "assets/**",
+      "package.json",
+      "LICENSE",
+      "!**/*.map"
+    ],
+    "asarUnpack": [
+      "node_modules/node-pty/**",
+      "node_modules/@nut-tree-fork/**"
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Network",
+      "icon": "assets/icon.png",
+      "maintainer": "Pocket-Designs <pocket-designs@proton.me>",
+      "executableName": "pocket-connect",
+      "desktop": {
+        "entry": {
+          "Name": "Pocket-Connect",
+          "Comment": "Remote desktop and console"
+        }
+      },
+      "artifactName": "Pocket-Connect-${version}-${arch}.${ext}"
+    },
+    "deb": {
+      "depends": [
+        "libxtst6",
+        "libpng16-16 | libpng16-16t64"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "msi"
+      ],
+      "icon": "assets/icon.ico",
+      "artifactName": "Pocket-Connect-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "perMachine": false,
+      "license": "LICENSE"
+    },
+    "msi": {
+      "createDesktopShortcut": true
+    },
+    "npmRebuild": false,
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Pocket-Designs",
+        "repo": "Pocket-Connect"
+      }
+    ]
+  }
+}

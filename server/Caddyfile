@@ -1,4 +1,0 @@
-# Replace with your own domain name. Caddy gets an HTTPS certificate for it automatically.
-boards.example.com {
-	reverse_proxy pocket-canvas:8787
-}
