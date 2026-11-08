@@ -1,6 +1,6 @@
 {
   "name": "pocket-canvas-server",
-  "version": "1.5.1",
+  "version": "1.5.3",
   "description": "Sync Pocket-Canvas boards through your own server, and share boards to edit them together.",
   "main": "pocket-canvas-server.js",
   "bin": { "pocket-canvas-server": "pocket-canvas-server.js" },
