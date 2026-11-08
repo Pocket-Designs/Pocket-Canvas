@@ -1,0 +1,145 @@
+<!doctype html>
+<!-- Pocket-Canvas — Copyright (c) 2026 Pocket-Designs <pocket-designs@proton.me> -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Pocket-Designs">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' file: data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; media-src 'self' file: blob:; connect-src 'self' https: http: wss: ws:; frame-src https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com https://www.dailymotion.com https://geo.dailymotion.com https://www.loom.com;">
+  <title>Pocket-Canvas</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Board tree sidebar -->
+    <aside id="sidebar">
+      <div class="side-head">
+        <div class="brand"><img class="brand-mark" src="icon.png" alt="">Pocket-Canvas</div>
+      </div>
+      <div class="side-search">
+        <input id="search" type="search" placeholder="Search all boards…" autocomplete="off">
+      </div>
+      <div id="search-results" hidden></div>
+      <div class="side-label">Boards</div>
+      <nav id="tree"></nav>
+      <div class="side-foot">
+        <button id="theme-btn" class="ghost-btn" title="Toggle dark mode (Ctrl+Shift+L)">Dark / light</button>
+        <button id="help-btn" class="ghost-btn icon-only" title="Keyboard shortcuts (F1)" aria-label="Keyboard shortcuts">?</button>
+        <button id="bin-btn" class="ghost-btn icon-only bin-btn" title="Recycle bin" aria-label="Recycle bin"></button>
+        <button id="settings-btn" class="ghost-btn icon-only" title="Settings (Ctrl+,)" aria-label="Settings"></button>
+      </div>
+    </aside>
+
+    <main id="main">
+      <header id="topbar">
+        <button id="sidebar-btn" class="icon-btn" title="Toggle sidebar (Ctrl+\)">☰</button>
+        <div id="crumbs"></div>
+        <div class="top-right">
+          <span id="peers" hidden></span>
+          <button id="server-state" class="server-state" hidden></button>
+          <button id="sync-state" hidden title="Sync"></button>
+          <span id="save-state">Saved</span>
+          <button class="icon-btn" id="delete-btn" title="Move selected to Recycle bin (Delete)" disabled></button>
+          <button class="icon-btn" id="undo-btn" title="Undo (Ctrl+Z)">↶</button>
+          <button class="icon-btn" id="redo-btn" title="Redo (Ctrl+Shift+Z)">↷</button>
+          <div class="zoom">
+            <button class="icon-btn" id="zoom-out" title="Zoom out">−</button>
+            <button id="zoom-label" title="Reset zoom">100%</button>
+            <button class="icon-btn" id="zoom-in" title="Zoom in">+</button>
+            <button class="icon-btn" id="zoom-fit" title="Fit to content (Ctrl+1)">⤢</button>
+            <button class="icon-btn" id="pages-btn" title="Page guides for printing (Ctrl+Shift+G)" aria-label="Page guides"></button>
+          </div>
+        </div>
+      </header>
+
+      <div id="workspace">
+        <!-- Tool rail: drag a tool onto the board, or click to add at the centre -->
+        <div id="rail"></div>
+
+        <div id="viewport" tabindex="0">
+          <div id="world">
+            <svg id="links" xmlns="http://www.w3.org/2000/svg">
+              <g id="links-g"></g>
+            </svg>
+            <div id="cards"></div>
+          </div>
+          
+          <div id="marquee" hidden></div>
+          <div id="empty-hint" hidden>
+            <h2>This board is empty</h2>
+            <p>Drag a tool from the left onto the board, paste an image or link,<br>or drop files from your computer.</p>
+            <button class="primary-btn" id="empty-template">Start from a template</button>
+          </div>
+          <div id="connect-hint" hidden>Click a card or anywhere on the board to start a line, then click where it ends. You can also drag. <kbd>Esc</kbd> to cancel.</div>
+          <div id="sketch-bar" hidden></div>
+          <button id="pages-chip" hidden title="Page guide settings"></button>
+        </div>
+        <aside id="comments-panel" hidden></aside>
+      </div>
+    </main>
+  </div>
+
+  <div id="ctx" class="menu" hidden></div>
+  <div id="toast" hidden></div>
+  <div id="modal-root"></div>
+
+  <div id="help" class="modal" hidden>
+    <div class="modal-box">
+      <h2>Keyboard &amp; mouse</h2>
+      <table>
+        <tr><td>Drag on empty board</td><td>Select several cards</td></tr>
+        <tr><td>Space + drag, middle-drag, or scroll</td><td>Move around the board</td></tr>
+        <tr><td>Ctrl + scroll / Ctrl + = / −</td><td>Zoom</td></tr>
+        <tr><td>Double-click empty board</td><td>New note</td></tr>
+        <tr><td>Drag a card onto a board card</td><td>Move it into that board</td></tr>
+        <tr><td>Drag a card onto a column</td><td>Add it to the column</td></tr>
+        <tr><td>Right-click a card</td><td>Colour, duplicate, delete…</td></tr>
+        <tr><td>Ctrl + V</td><td>Paste image, link or text as a card</td></tr>
+        <tr><td>Ctrl + D</td><td>Duplicate selection</td></tr>
+        <tr><td>Delete / Backspace</td><td>Delete selection</td></tr>
+        <tr><td>Ctrl + Z / Ctrl + Shift + Z</td><td>Undo / redo</td></tr>
+        <tr><td>Ctrl + F</td><td>Search all boards</td></tr>
+        <tr><td>Ctrl + 1</td><td>Fit board to screen</td></tr>
+        <tr><td>Ctrl + Shift + G</td><td>Page guides on / off (A4 or Letter pages, for printing)</td></tr>
+        <tr><td>Alt + ←</td><td>Go up to parent board</td></tr>
+        <tr><td>N T H B C K G S</td><td>Add note, to-do, heading, board, column, link, table (grid), sketch</td></tr>
+        <tr><td>Double-click a sketch</td><td>Draw on it (Done or Esc to finish)</td></tr>
+        <tr><td>Tab / Enter in a table</td><td>Next cell / cell below (adds rows as needed)</td></tr>
+        <tr><td>Ctrl + Shift + M</td><td>Comments on the selected card</td></tr>
+        <tr><td>Ctrl + Shift + N</td><td>New board from a template</td></tr>
+        <tr><td>Ctrl + Shift + E</td><td>Export board as picture or PDF</td></tr>
+        <tr><td>Ctrl + ,</td><td>Settings (name, sync, browser extension)</td></tr>
+        <tr><td>Delete / the bin button</td><td>Move selected cards to the Recycle bin (kept 30 days)</td></tr>
+        <tr><td>Right-click a misspelt word</td><td>Spelling suggestions, Add to dictionary</td></tr>
+        <tr><td>Esc</td><td>Deselect / cancel</td></tr>
+      </table>
+      <button class="primary-btn" id="help-close">Got it</button>
+    </div>
+  </div>
+
+  <script src="merge.js"></script>
+  <script src="colour-names.js"></script>
+  <script src="board-icons/icons.js"></script>
+  <script src="app.js"></script>
+  <script src="lines.js"></script>
+  <script src="text-format.js"></script>
+  <script src="table-style.js"></script>
+  <script src="modal.js"></script>
+  <script src="cards-extra.js"></script>
+  <script src="video-embed.js"></script>
+  <script src="comments.js"></script>
+  <script src="templates.js"></script>
+  <script src="bin.js"></script>
+  <script src="lock.js"></script>
+  <script src="appearance.js"></script>
+  <script src="settings-ui.js"></script>
+  <script src="sync-client.js"></script>
+  <script src="server-sync.js"></script>
+  <script src="export-ui.js"></script>
+  <script src="page-guides.js"></script>
+  <script src="scrollbars.js"></script>
+  <script src="mobile.js"></script>
+  <script src="start.js"></script>
+</body>
+</html>
