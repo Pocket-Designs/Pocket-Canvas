@@ -1,3 +1,6 @@
+<div align="center">
+ <img width="224" height="224" alt="Pocket-Canvas" src="https://github.com/user-attachments/assets/d70550ff-4c02-43b3-98fe-58f573b47812" />
+</div>
 # Pocket-Canvas
 
 A desktop app for organising ideas visually, in the style of Milanote: put notes, pictures, links, to-do lists, tables, sketches, audio, video and files on an infinite board, group them in columns, connect them with lines, and nest boards inside boards. Start from templates, sync across your computers, and save from your browser with the companion extension.
