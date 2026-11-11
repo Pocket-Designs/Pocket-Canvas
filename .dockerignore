@@ -1,0 +1,13 @@
+# keeps the Docker build quick: only src/, web/, scripts/, lib/ and server/ are needed
+node_modules
+**/node_modules
+dist
+build
+android
+ios
+browser-extension
+docs
+tests
+server/data
+server/caddy-data
+.git

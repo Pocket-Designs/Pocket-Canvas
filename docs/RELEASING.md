@@ -94,10 +94,11 @@ Use a test build whenever you want installers to try out without publishing anyt
 
    | Artifact | Contains |
    |---|---|
-   | `pocket-canvas-windows-latest` | `Pocket-Canvas Setup 1.5.0.exe` |
-   | `pocket-canvas-macos-26` (or `-macos-15-intel`) | `Pocket-Canvas-1.5.0-mac-arm64.dmg` for Macs with Apple chips (M1 and later), and `Pocket-Canvas-1.5.0-mac-x64.dmg` for older Intel Macs |
+   | `pocket-canvas-windows-latest` | `Pocket-Canvas Setup 1.5.0.exe` (installer) and `Pocket-Canvas-1.5.0-portable.exe` (runs without installing) |
+   | `pocket-canvas-macos-26` (or `-macos-15-intel`) | `Pocket-Canvas-1.5.0-mac-arm64.dmg` for Macs with Apple chips (M1 and later), and `Pocket-Canvas-1.5.0-mac-x64.dmg` for older Intel Macs, plus a `.zip` of each that runs without installing |
    | `pocket-canvas-ubuntu-24.04` | `Pocket-Canvas-1.5.0.AppImage`, `pocket-canvas_1.5.0_amd64.deb` |
    | `pocket-canvas-browser-extension` | `pocket-canvas-web-clipper-1.5.0.zip` |
+   | `pocket-canvas-server` | `Pocket-Canvas-Server-1.5.0.zip`: the server with the browser version built in (see [server/README.md](../server/README.md)) |
    | `pocket-canvas-android` | `Pocket-Canvas-1.5.0-android.apk` (see [ANDROID.md](ANDROID.md)) |
    | `pocket-canvas-ios` | `Pocket-Canvas-1.5.0-ios-unsigned.ipa` and `…-ios-simulator.zip` (see [IOS.md](IOS.md)) |
    | `pocket-canvas-safari-extension` | `Pocket-Canvas-Web-Clipper-1.5.0-safari.zip` and the converter's report (see [SAFARI.md](SAFARI.md)) |

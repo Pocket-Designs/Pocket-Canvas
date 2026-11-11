@@ -1,11 +1,8 @@
-<div align="center">
- <img width="224" height="224" alt="Pocket-Canvas" src="https://github.com/user-attachments/assets/d70550ff-4c02-43b3-98fe-58f573b47812" />
-</div>
 # Pocket-Canvas
 
 A desktop app for organising ideas visually, in the style of Milanote: put notes, pictures, links, to-do lists, tables, sketches, audio, video and files on an infinite board, group them in columns, connect them with lines, and nest boards inside boards. Start from templates, sync across your computers, and save from your browser with the companion extension.
 
-Runs on Windows, Linux, macOS, Android, iPhone and iPad. Local-first: no account, no Pocket-Canvas cloud. Your boards stay on your own devices, or on a server you run yourself.
+Runs on Windows, Linux, macOS, Android, iPhone and iPad, and in any web browser through your own Pocket-Canvas Server. Portable versions run without installing. Local-first: no account, no Pocket-Canvas cloud. Your boards stay on your own devices, or on a server you run yourself.
 
 **Author:** Pocket-Designs · pocket-designs@proton.me
 
@@ -81,6 +78,7 @@ npm run test:features   # 1.1 features: sync, export, templates, comments, exten
 npm run test:extension  # extension in Chromium (needs Playwright)
 npm run test:mobile     # phone/tablet app screens in a phone-sized Chromium (needs Playwright)
 npm run test:server     # Pocket-Canvas Server (needs: cd server && npm install)
+npm run test:web        # the browser version against a real server (needs the server's packages and Playwright)
 ```
 
 ## Building an installer

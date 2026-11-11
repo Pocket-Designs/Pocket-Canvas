@@ -22,7 +22,8 @@ async function renderSettings() {
   syncStatus = await api.syncStatus();
   const mobile = !!api.mobile; // the Android, iPhone and iPad apps
   // The Android app has no spelling settings (the keyboard does that), folder backups or browser extension.
-  const tabs = mobile ? [['general', 'General'], ['appearance', 'Appearance'], ['sync', 'Sync'], ['server', 'Server']]
+  const tabs = api.web ? [['general', 'General'], ['appearance', 'Appearance'], ['server', 'Account']] // the browser version (served by the server)
+    : mobile ? [['general', 'General'], ['appearance', 'Appearance'], ['sync', 'Sync'], ['server', 'Server']]
     : [['general', 'General'], ['appearance', 'Appearance'], ['spelling', 'Spelling'], ['backups', 'Backups'], ['sync', 'Sync'], ['server', 'Server'], ['clipper', 'Browser extension']];
   if (!tabs.some(([id]) => id === settingsTab)) settingsTab = 'general';
   let pane;
@@ -47,7 +48,7 @@ function generalPane(s) {
   return `
     <label class="field"><span>Your name <small>shown on comments you write</small></span>
       <input data-set="userName" value="${esc(s.userName)}" maxlength="60"></label>
-    <label class="field"><span>${api.mobile ? 'This device’s name' : 'This computer’s name'} <small>shown to your other devices when syncing</small></span>
+    <label class="field"><span>${api.web ? 'This browser’s name' : api.mobile ? 'This device’s name' : 'This computer’s name'} <small>shown to your other devices when syncing</small></span>
       <input data-set="deviceName" value="${esc(s.deviceName)}" maxlength="60"></label>
     <label class="check"><input type="checkbox" data-set="linkPreviews" ${s.linkPreviews ? 'checked' : ''}>
       <span><b>Link previews</b><br><small>When you add a link, Pocket-Canvas visits the page to fetch its title, description and picture. Turn this off if you’d rather it didn’t contact websites.</small></span></label>
@@ -316,8 +317,8 @@ function serverPane(st) {
     <div class="sync-banner ${st.state === 'online' ? 'ok' : 'bad'}">${label}${st.error && st.state !== 'online' ? ' — ' + esc(st.error) : ''}</div>
     <div class="kv"><span>Server</span><span class="path">${esc(st.url)}</span></div>
     <div class="kv"><span>Signed in as</span><span>${esc(st.user ? st.user.display || st.user.name : '')}</span></div>
-    <label class="check"><input type="checkbox" data-srv="personal" ${st.personal ? 'checked' : ''}>
-      <span><b>Keep all my boards in step through this server</b><br><small>Your other devices signed in as you get every change. You can use this instead of, or as well as, a sync folder.</small></span></label>
+    ${api.web ? '<p class="muted small">In a web browser your boards always stay in step through this server, with your other devices signed in as you.</p>' : `<label class="check"><input type="checkbox" data-srv="personal" ${st.personal ? 'checked' : ''}>
+      <span><b>Keep all my boards in step through this server</b><br><small>Your other devices signed in as you get every change. You can use this instead of, or as well as, a sync folder.</small></span></label>`}
     <div class="kv"><span>Shared boards</span><ul class="devices">${spaces}</ul></div>
     <div class="btn-row">
       <button class="ghost-btn" data-srv="reconnect">Reconnect</button>

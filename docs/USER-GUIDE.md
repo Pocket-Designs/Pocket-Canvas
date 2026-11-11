@@ -7,6 +7,8 @@ This guide is for anyone using the app. You don't need any technical knowledge.
 ### What's new
 
 **Version 1.5**
+- **Use Pocket-Canvas in a web browser**, with nothing installed, from your own Pocket-Canvas Server ([section 28](#28-using-pocket-canvas-in-a-web-browser))
+- **Portable versions** that run without installing, for Windows, Mac and Linux ([section 1](#portable-versions-no-installing))
 - **Share boards with other people** and edit them together, live, through your own **Pocket-Canvas Server**, which also syncs your devices without a sync folder ([section 26](#26-sharing-boards-and-your-own-server))
 - **PDF for printing**: A4 or Letter pages, portrait, landscape or best fit, and cards are never cut in half ([section 20](#20-exporting-pdf-picture-and-markdown))
 - **Your own interface colours**: pick an accent colour and an interface colour in **Settings › Appearance** ([section 21](#21-settings-and-dark-mode))
@@ -43,7 +45,7 @@ This guide is for anyone using the app. You don't need any technical knowledge.
 **Version 1.1**
 - Sync between computers, templates, comments, link previews, tables, audio and video, sketches, PDF/picture export and the browser extension
 
-Version 1.5.1 · © 2026 Pocket-Designs · pocket-designs@proton.me
+Version 1.5.2 · © 2026 Pocket-Designs · pocket-designs@proton.me
 
 ---
 
@@ -76,6 +78,7 @@ Version 1.5.1 · © 2026 Pocket-Designs · pocket-designs@proton.me
 25. [The Android app](#25-the-android-app)
 26. [Sharing boards and your own server](#26-sharing-boards-and-your-own-server)
 27. [iPhone and iPad](#27-iphone-and-ipad)
+28. [Using Pocket-Canvas in a web browser](#28-using-pocket-canvas-in-a-web-browser)
 
 ---
 
@@ -103,6 +106,20 @@ Installing a new version over an old one keeps all your boards.
 1. Double-click **pocket-canvas_1.5.0_amd64.deb** to open it in your Software app, then click **Install**.
    Or, in a Terminal in the same folder, run: `sudo apt install ./pocket-canvas_1.5.0_amd64.deb`
 2. Find **Pocket-Canvas** in your applications menu.
+
+### Portable versions (no installing)
+
+Each portable version runs straight from where you put it, for example a USB stick or a folder that Google Drive or OneDrive keeps in step.
+
+- **Windows:** download **Pocket-Canvas-…-portable.exe** and double-click it. Nothing is installed. Your boards are kept in a **Pocket-Canvas Data** folder next to the .exe, so the app and its boards travel together. Some work computers don't allow programs to run this way.
+- **Linux:** the **.AppImage** is already portable. To keep its boards next to it too, make an empty folder called **Pocket-Canvas Data** beside the AppImage.
+- **Mac:** download **Pocket-Canvas-…-mac-arm64.zip** (Apple chip) or **…-mac-x64.zip** (Intel), unzip it and double-click **Pocket-Canvas**. To keep its boards next to it, make an empty folder called **Pocket-Canvas Data** beside the app.
+
+**Help › About Pocket-Canvas** says where a portable version keeps its boards.
+
+Only run a portable copy on **one computer at a time**. If you keep it in a cloud-drive folder, let the drive finish syncing before opening it on another computer. To use your boards on several computers at once, use [sync](#17-syncing-between-your-computers) or a [Pocket-Canvas Server](#26-sharing-boards-and-your-own-server) instead.
+
+**In a web browser:** if you (or someone you know) runs a Pocket-Canvas Server, you can also use Pocket-Canvas in any browser with nothing to download. See [section 28](#28-using-pocket-canvas-in-a-web-browser).
 
 ### macOS
 
@@ -968,3 +985,23 @@ Pocket-Canvas runs on iPhone and iPad (iOS 15 or newer), just like the Android a
 ## Need help?
 
 Email **pocket-designs@proton.me**.
+
+---
+
+## 28. Using Pocket-Canvas in a web browser
+
+If you have a **Pocket-Canvas Server** ([section 26](#26-sharing-boards-and-your-own-server)), you can use Pocket-Canvas in Chrome, Edge, Firefox or Safari on any computer, phone or tablet, with nothing to install.
+
+1. Open the server's address, for example `https://boards.example.com`.
+2. Sign in with your name and password, the same ones you use in the apps. To make an account, click **New here? Create an account** and enter the join code from whoever runs the server.
+3. Your boards appear, copied from your other devices, and stay in step live. The top bar shows **● Live** while connected.
+
+Everything works as in the desktop app, including sharing, tables, sketches, pictures, page guides and exporting. A few things are different:
+- **The ⋮ button** (top right) has what the desktop menu bar has, including **Sign out**. The keyboard shortcuts work as in the desktop app.
+- **Exports and backups** download to your Downloads folder.
+- **Pictures and files** you add are uploaded to your server straight away.
+- **Settings › Account** shows the server you're signed in to.
+- There are no sync folders or folder backups; your server keeps everything in step.
+
+On someone else's computer, use **⋮ › Sign out** when you finish. That also removes the copy of your boards kept in that browser.
+

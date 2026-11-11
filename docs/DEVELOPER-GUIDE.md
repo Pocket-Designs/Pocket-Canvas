@@ -2,7 +2,7 @@
 
 How Pocket-Canvas is built, how to run and test it, how to change it, and how to ship a release.
 
-Version 1.5.1 · © 2026 Pocket-Designs · pocket-designs@proton.me · MIT licence (logo excluded; see `ASSETS-LICENCE.md`)
+Version 1.5.2 · © 2026 Pocket-Designs · pocket-designs@proton.me · MIT licence (logo excluded; see `ASSETS-LICENCE.md`)
 
 ### Version history
 
@@ -144,6 +144,8 @@ pocket-canvas/
 │   ├── start.js            init(): runs last
 │   └── icon.png            Logo used at runtime
 ├── browser-extension/      The web clipper (Manifest V3); see its README
+├── web/
+│   └── api-web.js          The browser version's window.api: sign-in screen, IndexedDB copy, server for files and previews, keyboard shortcuts
 ├── mobile/
 │   └── api-mobile.js       The phone/tablet apps' window.api (instead of preload.js): files, folder sync, export, sharing
 ├── android/                Android Studio project (Capacitor), kept in Git; see docs/ANDROID.md
@@ -152,7 +154,9 @@ pocket-canvas/
 ├── capacitor.config.json   App id, name and web folder (build/mobile-www) for Android and iOS
 ├── scripts/
 │   ├── build-extension.js  Zips the extension for the stores (no dependencies)
-│   └── build-mobile-web.js   Copies src/ + mobile/api-mobile.js to build/mobile-www
+│   ├── build-mobile-web.js   Copies src/ + mobile/api-mobile.js to build/mobile-www
+│   ├── build-web.js        Copies src/ + web/api-web.js to build/web (or a given folder): the browser version
+│   └── build-server.js     dist/Pocket-Canvas-Server-<version>.zip: the server with the browser version built in
 ├── tests/
 │   ├── smoke.js            Core features, driving the real app
 │   ├── features.js         1.1 features, driving the real app (sync, export, clipper API…)
@@ -160,6 +164,7 @@ pocket-canvas/
 │   ├── extension.test.js   Extension in Chromium (Playwright) + app
 │   ├── mobile-web.test.js  Phone/tablet app screens in a phone-sized Chromium with a pretend phone (Android and iPhone)
 │   ├── server.test.js      Pocket-Canvas Server: accounts, devices, shared boards, presence, assets, restart
+│   ├── web.test.js         The browser version against a real server, in Chromium (two browsers plus a pretend desktop)
 │   ├── wait-ready.js       Waits for the app to finish starting (used by the tests)
 │   └── app-harness.js      Starts the app for extension.test.js
 ├── build/                  Installer icons and original logo artwork
@@ -675,6 +680,7 @@ New styles should use these variables, not fixed colours, so they follow the use
 | `npm run test:features` | Sync with a simulated second computer (incoming, outgoing, assets, status), tables, sketch drawing/eraser/undo, audio playback and Stop, comments, link previews against a local test website, templates (built-in and saved), picture placeholders, PNG and PDF export, the clipper API (security, text, screenshot, media, board choice), the top-left corner (scroll limits, card limits, older boards, fit, templates at top-left), board icons (all files load, picker, sidebar, sync) Colour cards (typed and picked codes, automatic names, your own names kept, dragging), deleting and the Recycle bin (button, restore with lines, boards, 30-day purge, sync), password-protected boards (encryption on disk and in sync, wrong/right password, nested boards, re-lock on leaving, encrypted bin items, change password), backups (automatic, now, assets, encryption kept, pruning, restore, safety backup) and spelling (defaults, on/off, languages, right-click menu); 1.4: board flush with the window, table − Row/− Column (highlight, cell chosen, last, minimum, undo), 51 icon colours and typed codes, lines (free ends, arrows both/none, dotted/dashed/thick/straight, remembered style, drag line, drag end onto a card, attached end follows, drag-to-draw, copy, menu, detach), text formatting (bar, bold/underline/strike/size/colour/font on the selection only, whole note, sanitising, whole-card styles on a heading, Ctrl+B, clear), colour names (exact names, descriptions, renaming older cards); 1.5: paged PDF (planner never cuts a card, page breaks, scaling, A4 portrait/landscape page sizes, best fit), sketch shapes (rectangle, Shift-level arrow, filled ellipse), pen pressure, erasing shapes, video links (recognising YouTube/Vimeo/Dailymotion/Loom, start times, play, stop, plain link, CSP), appearance (tab, accent, selected name, interface colour, dark shades, any accent, readable text on pale accents, any interface colour, kept locally not synced, reset), tables 1.5 (grips, dragging a column and a row, drop marker, card stays put, undo, Alt+↓/Alt+←, menu items, cell fill, row bold/italic/underline, column text colour, last-applied wins, styles follow moves/inserts/deletes, clear, export, sync, photos by drop and paste, photos follow moves and inserts, photo menu, server and Markdown, remove and undo, pasting tables from Excel/Google Sheets/tab text with styles, headings, merged cells, picture ignored, plain text and single cells stay notes, pasting into a cell grows the table, undo), scroll bars (hidden when it fits, bottom and right bars appear, dragging to the far edge, no selection underneath, track clicks both ways, zoom, hidden again), page guides (menu, A4 sizes from the top-left corner, numbering, chip, kept on the board, crossing outline on and off, blank pages, landscape, Letter, 50%, sync, export dialog default, printed page count and size, off again), and the app against a real Pocket-Canvas Server (create account, Live, own devices both ways, share by name, only the shared board sent, badges, someone else's edits, presence outline, your edits reach them, their pictures arrive, no passwords on shared boards, leaving, sign out) | 293 |
 | `npm run test:extension` | The extension loaded into Chromium: manifest accepted, pairing, board list, popup, right-click saves, a web page blocked from the API, disconnect | 13 |
 | `npm run test:mobile` | The phone/tablet apps' screens (`build/mobile-www`) in a phone-sized touch Chromium with a pretend phone: start-up, saving to app storage, assets, ⋮ menu, settings, the Android folder picker (cancel, choose), writing to and reading from the sync folder (cards and pictures), link previews, sharing, export as PNG and as A4 PDF pages, page guides from ⋮ and printing them, one-finger pan, pinch zoom, press-and-hold menu, Back button, phone layout; and as an iPhone: start-up, sync settings pointing to the server | 40 |
+| `npm run test:web` | The browser version against a real server: served at `/`, `/health` kept, no path escapes, sign-in screen, wrong password, your boards from other devices (no welcome board added), pictures from the server, Live, ⋮ menu, Settings tabs, changes both ways, keyboard shortcuts (zoom, duplicate, undo), uploading a picture, asset type/sandbox/sign-in/ranges, cookie read-only and HttpOnly/Strict, reload, a second browser live, new account with join code, privacy, previews refuse home-network addresses, sign out clears the copy | 34 |
 | `npm run test:server` | Pocket-Canvas Server on its own: join code, password rules, unique names, sign-in, hashed storage, own-device relay and catch-up, privacy between accounts, sharing (invite, first copy, edits both ways, outsiders refused), presence (typing, leaving), assets (missing list, upload, download, bad ids), restart keeps everything, leaving, bad keys | 30 |
 
 Each test runs the **real app** with a throw-away data folder and exits non-zero on failure.
@@ -738,6 +744,22 @@ Code signing switches on by itself. When the signing secrets are present, the wo
 
 ### The Safari extension
 The **safari** job runs Apple's `safari-web-extension-converter` on `browser-extension/`, saves its report, and builds the Mac app that carries the extension; see [SAFARI.md](SAFARI.md).
+
+### The browser version (`web/api-web.js`)
+The same `src/` screens, with `window.api` built on the Pocket-Canvas Server instead of Electron or Capacitor. `scripts/build-web.js` copies them to `build/web`, where a server run from the repository finds them. The Docker image and `scripts/build-server.js` build them into the server's `public/` folder.
+- **Signing in.** A sign-in screen (part of `api-web.js`) runs before `api.assetBase()` resolves, so the app only starts once signed in. The login sends `web: true`, and the server then also sets an `HttpOnly`, `SameSite=Strict` cookie. That cookie is accepted only for GET, so `<img>`/`<video>` can load `/api/assets/<id>`. The Bearer key is kept in `localStorage` and used for everything else, including the WebSocket.
+- **Your boards.** `load()` merges this browser's IndexedDB copy with the copies from `GET /api/docs` (newest first). A browser that hasn't been used before therefore starts from your real boards, not the welcome board. `save()` writes IndexedDB, and `serverOnSaved()` sends the copy live as for any device (personal sync is always on).
+- **Files.** `saveBytes`/`pickFiles` PUT to `/api/assets/<id>`, and `assetBase` is `<origin>/api/assets/`. `hasAssets` returns nothing, because everything is already on the server.
+- **Link previews** use `GET /api/preview`. The server runs `lib/link-preview.js` with `safeFetch`, which resolves every hop and refuses loopback, private, link-local and CGNAT addresses.
+- **Other differences.** Exports use `exportInPage()` and download. The menu bar's accelerators are mapped to `api.menu()` commands, except undo/redo/select-all while typing, which the browser handles itself. The ⋮ menu from `mobile.js` is shown (`api.web`). Settings shows General, Appearance and Account.
+- **Server side.** Static files are served from `WEB_DIR` with path checks. `/health` stays JSON for the apps. Assets are sent with their real type, a `sandbox` CSP, `nosniff` and HTTP ranges.
+
+### Portable versions
+`package.json` builds a Windows `portable` .exe and Mac `zip`s besides the installers, and the AppImage is portable already. At start-up, `main.js` (`portableMode()`) moves `userData` to a **Pocket-Canvas Data** folder next to the app:
+- always for the portable .exe (`PORTABLE_EXECUTABLE_DIR`)
+- for the AppImage (`APPIMAGE`) and a packaged Mac app only when that folder already exists
+
+**About** then shows where the boards are kept.
 
 ### The server
 `npm run server` runs it from the repository (after `cd server && npm install`). Its version is in `server/package.json` and `VERSION` in the script; keep them in step with the app.

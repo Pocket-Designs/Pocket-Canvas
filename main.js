@@ -12,6 +12,29 @@ const { linkPreview } = require('./lib/link-preview');
 const { exportBoard } = require('./lib/export');
 const { Backups } = require('./lib/backup');
 
+// ---------- Portable mode ----------
+// The portable Windows .exe keeps its boards in a "Pocket-Canvas Data" folder next to itself, so the app
+// and its boards can travel together (e.g. on a USB stick or in a Google Drive folder). The Linux AppImage
+// and the Mac app do the same when such a folder already exists next to them (create it to switch it on).
+const PORTABLE_FOLDER = 'Pocket-Canvas Data';
+(function portableMode() {
+  let base = null;
+  if (process.env.PORTABLE_EXECUTABLE_DIR) base = process.env.PORTABLE_EXECUTABLE_DIR;      // Windows portable
+  else if (process.env.APPIMAGE) base = path.dirname(process.env.APPIMAGE);                   // Linux AppImage
+  else if (process.platform === 'darwin' && app.isPackaged) base = path.resolve(path.dirname(process.execPath), '../../..'); // folder holding the .app
+  if (!base) return;
+  const dir = path.join(base, PORTABLE_FOLDER);
+  if (!process.env.PORTABLE_EXECUTABLE_DIR && !fs.existsSync(dir)) return;
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+    fs.accessSync(dir, fs.constants.W_OK);
+    app.setPath('userData', dir);
+    process.env.PC_PORTABLE_DIR = dir;
+  } catch (err) {
+    console.error('Portable data folder can’t be used, so the usual one is:', err.message);
+  }
+})();
+
 const DATA_DIR = () => app.getPath('userData');
 const DATA_FILE = () => path.join(DATA_DIR(), 'pocket-canvas-data.json');
 const ASSET_DIR = () => path.join(DATA_DIR(), 'assets');
@@ -167,7 +190,8 @@ function buildMenu() {
             icon: nativeImage.createFromPath(path.join(__dirname, 'src', 'icon.png')).resize({ width: 96, height: 96 }),
             title: 'About Pocket-Canvas',
             message: `Pocket-Canvas ${app.getVersion()}`,
-            detail: 'A visual board for organising ideas.\n\n© 2026 Pocket-Designs\npocket-designs@proton.me'
+            detail: 'A visual board for organising ideas.\n\n© 2026 Pocket-Designs\npocket-designs@proton.me' +
+              (process.env.PC_PORTABLE_DIR ? `\n\nPortable version: your boards are kept in\n${process.env.PC_PORTABLE_DIR}` : '')
           })
         }
       ]

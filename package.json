@@ -1,7 +1,7 @@
 {
   "name": "pocket-canvas",
   "productName": "Pocket-Canvas",
-  "version": "1.5.3",
+  "version": "1.5.2",
   "description": "A visual board app for organising ideas: notes, images, links, to-dos, columns and nested boards on an infinite canvas.",
   "main": "main.js",
   "author": {
@@ -34,7 +34,10 @@
     "mobile:web": "node scripts/build-mobile-web.js",
     "ios:sync": "node scripts/build-mobile-web.js && npx cap sync ios",
     "ios:open": "npx cap open ios",
-    "server": "node server/pocket-canvas-server.js"
+    "server": "node server/pocket-canvas-server.js",
+    "test:web": "node tests/web.test.js",
+    "web": "node scripts/build-web.js",
+    "server:package": "node scripts/build-server.js"
   },
   "devDependencies": {
     "@capacitor/android": "^8.5.3",
@@ -70,6 +73,12 @@
           "arch": [
             "x64"
           ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "build/icon.ico"
@@ -92,7 +101,8 @@
       "icon": "build/icon.png",
       "maintainer": "Pocket-Designs <pocket-designs@proton.me>",
       "vendor": "Pocket-Designs",
-      "synopsis": "Visual boards for organising ideas"
+      "synopsis": "Visual boards for organising ideas",
+      "artifactName": "${productName}-${version}.${ext}"
     },
     "mac": {
       "target": [
@@ -102,12 +112,20 @@
             "arm64",
             "x64"
           ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
         }
       ],
       "category": "public.app-category.productivity",
       "icon": "build/icon.png",
       "hardenedRuntime": true,
-      "gatekeeperAssess": false
+      "gatekeeperAssess": false,
+      "artifactName": "${productName}-${version}-mac-${arch}.${ext}"
     },
     "publish": null,
     "extraFiles": [
@@ -116,6 +134,12 @@
     ],
     "dmg": {
       "artifactName": "${productName}-${version}-mac-${arch}.${ext}"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.exe"
+    },
+    "deb": {
+      "artifactName": "${name}_${version}_${arch}.${ext}"
     }
   }
 }

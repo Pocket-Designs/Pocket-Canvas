@@ -28,13 +28,65 @@ const path = require('path');
 const crypto = require('crypto');
 const { WebSocketServer } = require('ws');
 
-const VERSION = '1.5.1';
+const VERSION = '1.5.2';
 const PROTOCOL = 1;
+
+// ---------- fetching web pages for link previews, safely ----------
+// Only public internet addresses: never this machine or your home network (otherwise anyone signed in
+// could use the server to look at things only it can reach).
+const dns = require('dns').promises;
+const net = require('net');
+function privateIp(ip) {
+  if (net.isIPv4(ip)) {
+    const [a, b] = ip.split('.').map(Number);
+    return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127) || a >= 224;
+  }
+  const v = ip.toLowerCase();
+  if (v.startsWith('::ffff:')) return privateIp(v.slice(7));
+  return v === '::1' || v === '::' || v.startsWith('fc') || v.startsWith('fd') || v.startsWith('fe80') || v.startsWith('ff');
+}
+async function publicAddress(u) {
+  let url;
+  try { url = new URL(u); } catch { return false; }
+  if (!/^https?:$/.test(url.protocol)) return false;
+  const host = url.hostname.replace(/^\[|\]$/g, '');
+  if (/^localhost$/i.test(host) || /\.local$/i.test(host)) return false;
+  try {
+    const addrs = net.isIP(host) ? [{ address: host }] : await dns.lookup(host, { all: true });
+    return addrs.length > 0 && addrs.every((a) => !privateIp(a.address));
+  } catch { return false; }
+}
+// fetch that checks every address it's sent on to
+async function safeFetch(url, opts = {}) {
+  for (let hops = 0; hops < 6; hops++) {
+    if (!(await publicAddress(url))) throw new Error('That address can’t be fetched from the server.');
+    const res = await fetch(url, { ...opts, redirect: 'manual' });
+    if (res.status >= 300 && res.status < 400 && res.headers.get('location')) {
+      try { res.body && res.body.cancel(); } catch {}
+      url = new URL(res.headers.get('location'), url).href;
+      continue;
+    }
+    Object.defineProperty(res, 'url', { value: url });
+    return res;
+  }
+  throw new Error('Too many redirects');
+}
 
 function createServer(opts = {}) {
   const DATA = path.resolve(opts.dataDir || process.env.DATA_DIR || path.join(process.cwd(), 'data'));
   const JOIN_CODE = opts.joinCode ?? process.env.JOIN_CODE ?? '';
   const MAX_ASSET = (opts.maxAssetMb || +process.env.MAX_ASSET_MB || 500) * 1024 * 1024;
+  // The browser version of Pocket-Canvas (built by scripts/build-web.js), served at the server's address.
+  const WEB_DIR = [opts.webDir, process.env.WEB_DIR, path.join(__dirname, 'public'), path.join(__dirname, '..', 'build', 'web')]
+    .find((d) => d && fs.existsSync(path.join(d, 'index.html'))) || null;
+  // Link previews for the browser version (the server fetches the page, as the desktop app does).
+  const PREVIEWS = (opts.linkPreviews ?? process.env.LINK_PREVIEWS ?? 'on') !== 'off';
+  let preview = null;
+  if (PREVIEWS) {
+    for (const p of [path.join(__dirname, 'lib', 'link-preview.js'), path.join(__dirname, '..', 'lib', 'link-preview.js')]) {
+      if (fs.existsSync(p)) { try { preview = require(p); break; } catch {} }
+    }
+  }
   const log = opts.quiet ? () => {} : (...a) => console.log(new Date().toISOString(), ...a);
   for (const d of ['', 'docs', 'assets']) fs.mkdirSync(path.join(DATA, d), { recursive: true });
 
@@ -111,6 +163,65 @@ function createServer(opts = {}) {
     req.on('error', reject);
   });
   const bearer = (req) => (/^Bearer (.+)$/.exec(req.headers.authorization || '') || [])[1];
+  // The browser version also signs in with a cookie, so pictures and videos (<img>, <video>) can load.
+  // It's only accepted for reading (GET); anything that changes something needs the Bearer key.
+  const COOKIE = 'pc_session';
+  const cookieToken = (req) => { const m = new RegExp('(?:^|;\\s*)' + COOKIE + '=([^;]+)').exec(req.headers.cookie || ''); return m ? decodeURIComponent(m[1]) : null; };
+  const isHttps = (req) => req.socket.encrypted || String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim() === 'https';
+  const sessionCookie = (req, token) => `${COOKIE}=${token ? encodeURIComponent(token) : ''}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${token ? 31536000 : 0}${isHttps(req) ? '; Secure' : ''}`;
+  const sendWithCookie = (req, res, code, body, token) => {
+    res.writeHead(code, { ...cors, 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'Set-Cookie': sessionCookie(req, token) });
+    res.end(JSON.stringify(body));
+  };
+
+  // ---------- serving the browser version ----------
+  const WEB_TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json',
+    '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.webp': 'image/webp', '.woff2': 'font/woff2', '.txt': 'text/plain; charset=utf-8', '.webmanifest': 'application/manifest+json' };
+  function serveWeb(req, res, pathname) {
+    if (!WEB_DIR || (req.method !== 'GET' && req.method !== 'HEAD')) return false;
+    let rel;
+    try { rel = decodeURIComponent(pathname); } catch { return false; }
+    if (rel === '/' || rel === '') rel = '/index.html';
+    const file = path.resolve(WEB_DIR, '.' + rel);
+    if (!file.startsWith(path.resolve(WEB_DIR) + path.sep)) return false; // stay inside the web folder
+    let st; try { st = fs.statSync(file); } catch { return false; }
+    if (!st.isFile()) return false;
+    res.writeHead(200, {
+      'Content-Type': WEB_TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream',
+      'Cache-Control': /index\.html$/.test(file) ? 'no-cache' : 'public, max-age=3600',
+      'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'same-origin', 'X-Frame-Options': 'SAMEORIGIN'
+    });
+    if (req.method === 'HEAD') res.end(); else fs.createReadStream(file).pipe(res);
+    return true;
+  }
+
+  // Pictures, video and audio are served with their real type (so they show and play in a browser),
+  // in a locked-down "sandbox" so a file can never run scripts on this site.
+  const ASSET_TYPES = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.webp': 'image/webp', '.avif': 'image/avif',
+    '.bmp': 'image/bmp', '.ico': 'image/x-icon', '.svg': 'image/svg+xml', '.pdf': 'application/pdf', '.txt': 'text/plain; charset=utf-8',
+    '.mp3': 'audio/mpeg', '.m4a': 'audio/mp4', '.aac': 'audio/aac', '.wav': 'audio/wav', '.ogg': 'audio/ogg', '.oga': 'audio/ogg', '.opus': 'audio/ogg', '.flac': 'audio/flac', '.weba': 'audio/webm',
+    '.mp4': 'video/mp4', '.m4v': 'video/mp4', '.webm': 'video/webm', '.ogv': 'video/ogg', '.mov': 'video/quicktime' };
+  function sendAsset(req, res, p, id) {
+    const size = fs.statSync(p).size;
+    const type = ASSET_TYPES[path.extname(id)] || 'application/octet-stream';
+    const head = {
+      ...cors, 'Content-Type': type, 'Accept-Ranges': 'bytes', 'Cache-Control': 'private, max-age=31536000, immutable',
+      'X-Content-Type-Options': 'nosniff', 'Content-Security-Policy': "sandbox; default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'unsafe-inline'",
+      'Content-Disposition': type === 'application/octet-stream' ? 'attachment' : 'inline'
+    };
+    const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');
+    if (range && size) {
+      let start = range[1] === '' ? size - +range[2] : +range[1];
+      let end = range[1] === '' || range[2] === '' ? size - 1 : Math.min(+range[2], size - 1);
+      if (start < 0) start = 0;
+      if (start > end || start >= size) { res.writeHead(416, { ...head, 'Content-Range': `bytes */${size}` }); res.end(); return; }
+      res.writeHead(206, { ...head, 'Content-Range': `bytes ${start}-${end}/${size}`, 'Content-Length': end - start + 1 });
+      fs.createReadStream(p, { start, end }).pipe(res);
+      return;
+    }
+    res.writeHead(200, { ...head, 'Content-Length': size });
+    fs.createReadStream(p).pipe(res);
+  }
 
   // slow down password guessing: 10 tries per minute per address
   const tries = new Map();
@@ -124,10 +235,11 @@ function createServer(opts = {}) {
     try {
       const url = new URL(req.url, 'http://x');
       if (req.method === 'OPTIONS') { res.writeHead(204, cors); res.end(); return; }
-      if (url.pathname === '/' || url.pathname === '/health') {
-        send(res, 200, { app: 'Pocket-Canvas Server', version: VERSION, protocol: PROTOCOL, signUp: !!JOIN_CODE });
+      if (url.pathname === '/health' || (url.pathname === '/' && !WEB_DIR)) {
+        send(res, 200, { app: 'Pocket-Canvas Server', version: VERSION, protocol: PROTOCOL, signUp: !!JOIN_CODE, web: !!WEB_DIR });
         return;
       }
+      if (!url.pathname.startsWith('/api/') && serveWeb(req, res, url.pathname)) return;
       if (url.pathname === '/api/register' && req.method === 'POST') {
         if (tooMany(req.socket.remoteAddress)) { send(res, 429, { error: 'Too many tries. Wait a minute.' }); return; }
         const b = JSON.parse((await readBody(req, 10e3)).toString() || '{}');
@@ -141,7 +253,8 @@ function createServer(opts = {}) {
         const user = { id: 'u' + crypto.randomBytes(8).toString('hex'), name: b.name.trim(), display: String(b.display || b.name).trim().slice(0, 60), salt, hash: hashPassword(b.password, salt), created: Date.now() };
         db.users[key] = user; save('users');
         log('new account', user.name);
-        send(res, 200, { token: issueToken(user, b.device), user: publicUser(user) });
+        const token = issueToken(user, b.device);
+        sendWithCookie(req, res, 200, { token, user: publicUser(user) }, b.web ? token : null);
         return;
       }
       if (url.pathname === '/api/login' && req.method === 'POST') {
@@ -151,15 +264,30 @@ function createServer(opts = {}) {
         const ok = user && typeof b.password === 'string' &&
           crypto.timingSafeEqual(Buffer.from(hashPassword(b.password, user.salt), 'hex'), Buffer.from(user.hash, 'hex'));
         if (!ok) { send(res, 401, { error: 'That name and password don’t match.' }); return; }
-        send(res, 200, { token: issueToken(user, b.device), user: publicUser(user) });
+        const token = issueToken(user, b.device);
+        sendWithCookie(req, res, 200, { token, user: publicUser(user) }, b.web ? token : null);
         return;
       }
       // everything below needs a signed-in person
-      const user = authUser(bearer(req));
+      const user = authUser(bearer(req) || (req.method === 'GET' || req.method === 'HEAD' ? cookieToken(req) : null));
       if (!user) { send(res, 401, { error: 'Please sign in again.' }); return; }
       if (url.pathname === '/api/logout' && req.method === 'POST') {
-        delete db.tokens[sha(bearer(req))]; save('tokens');
-        send(res, 200, { ok: true });
+        delete db.tokens[sha(bearer(req) || '')]; save('tokens');
+        sendWithCookie(req, res, 200, { ok: true }, null);
+        return;
+      }
+      // the latest copy of your boards from each of your devices (the browser version starts from these)
+      if (url.pathname === '/api/docs' && req.method === 'GET') {
+        const docs = (await loadDocs('me:' + user.id)).filter((d) => d && d.state && d.state.boards);
+        docs.sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+        send(res, 200, { docs });
+        return;
+      }
+      if (url.pathname === '/api/preview' && req.method === 'GET') {
+        if (!preview) { send(res, 200, null); return; }
+        const target = url.searchParams.get('url') || '';
+        if (!(await publicAddress(target))) { send(res, 200, { error: 'That address can’t be previewed from the server.' }); return; }
+        try { send(res, 200, await preview.linkPreview(target, path.join(DATA, 'assets'), { fetch: safeFetch })); } catch (err) { send(res, 200, { error: err.message }); }
         return;
       }
       if (url.pathname === '/api/users' && req.method === 'GET') {
@@ -185,10 +313,10 @@ function createServer(opts = {}) {
           send(res, 200, { ok: true });
           return;
         }
-        if (req.method === 'GET') {
+        if (req.method === 'GET' || req.method === 'HEAD') {
           if (!fs.existsSync(p)) { send(res, 404, { error: 'Not found' }); return; }
-          res.writeHead(200, { ...cors, 'Content-Type': 'application/octet-stream', 'Cache-Control': 'private, max-age=31536000, immutable' });
-          fs.createReadStream(p).pipe(res);
+          if (req.method === 'HEAD') { res.writeHead(200, cors); res.end(); return; }
+          sendAsset(req, res, p, am[1]);
           return;
         }
       }
@@ -337,7 +465,8 @@ function createServer(opts = {}) {
     listen(port = opts.port ?? (+process.env.PORT || 8787), host = opts.host || process.env.HOST || '0.0.0.0') {
       return new Promise((resolve) => server.listen(port, host, () => resolve(server.address().port)));
     },
-    close() { for (const c of clients) c.ws.terminate(); wss.close(); return new Promise((r) => server.close(r)); }
+    close() { for (const c of clients) c.ws.terminate(); wss.close(); return new Promise((r) => server.close(r)); },
+    webDir: WEB_DIR
   };
 }
 
@@ -347,6 +476,7 @@ if (require.main === module) {
   const s = createServer();
   s.listen().then((port) => {
     console.log(`Pocket-Canvas Server ${VERSION} is running on port ${port}.`);
+    console.log(s.webDir ? `The browser version is at http://<this machine's address>:${port}/ (or your HTTPS address).` : 'The browser version isn’t included (see server/README.md to add it); the apps can still sign in.');
     if (!process.env.JOIN_CODE) console.log('No JOIN_CODE set, so nobody can create an account. Set JOIN_CODE to allow sign-ups.');
   });
 }

@@ -93,7 +93,7 @@
 
 // ---------- Phone and tablet app extras (Android, iPhone, iPad) ----------
 (function mobileApp() {
-  if (!window.api || !api.mobile) return; // the Android, iPhone and iPad apps
+  if (!window.api || !(api.mobile || api.web)) return; // the Android, iPhone and iPad apps, and the browser version
   const P = window.Capacitor && window.Capacitor.Plugins;
 
   // A ⋮ button with what's in the desktop menu bar.
@@ -119,7 +119,11 @@
       '-',
       { label: 'Dark / light', run: () => toggleTheme() },
       { label: 'Settings', run: () => openSettings() },
-      { label: 'Sync settings', run: () => openSettings('sync') }
+      ...(api.web ? [
+        { label: 'Keyboard shortcuts', hint: 'F1', run: () => api.menu('help') },
+        { label: 'Account…', run: () => openSettings('server') },
+        { label: 'Sign out', run: () => serverSignOut() }
+      ] : [{ label: 'Sync settings', run: () => openSettings('sync') }])
     ]);
   });
 

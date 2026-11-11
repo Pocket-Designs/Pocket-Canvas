@@ -1,10 +1,14 @@
 # Pocket-Canvas Server with automatic HTTPS (Caddy).
 # 1. Point a domain name (e.g. boards.example.com) at this machine.
 # 2. Put that name in the Caddyfile next to this file, and choose a JOIN_CODE below.
-# 3. docker compose up -d
+# 3. docker compose up -d   (run it in this server folder, inside the full Pocket-Canvas folder)
+# 4. Open https://your-domain in a web browser to use Pocket-Canvas there too.
 services:
   pocket-canvas:
-    build: .
+    # built from the whole Pocket-Canvas folder, so the browser version is included
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
     restart: unless-stopped
     environment:
       - JOIN_CODE=change-me-to-something-secret

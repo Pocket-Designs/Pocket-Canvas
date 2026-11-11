@@ -38,3 +38,5 @@ desktop.ini
 build/mobile-www/
 server/node_modules/
 server/data/
+build/web/
+server/public/

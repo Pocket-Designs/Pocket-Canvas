@@ -1,10 +1,10 @@
 # Pocket-Canvas — Feature List
 
-Version 1.5.1 · © 2026 Pocket-Designs
+Version 1.5.2 · © 2026 Pocket-Designs
 
 Pocket-Canvas is a desktop, Android, iPhone and iPad app for organising ideas visually. Put notes, pictures, links, to-do lists, tables, sketches, audio, video and files on an endless board, then group, connect and nest them however you think. Start from a template, keep your boards in step across all your devices, share boards with other people and edit them together, and save things straight from your web browser.
 
-**New in 1.5:** **share boards with other people and edit them together, live**, through your own **Pocket-Canvas Server** (which also syncs your devices without a sync folder) · **PDF for printing** on A4 or Letter pages, portrait, landscape or best fit, with no card cut in half · **your own interface colours** (accent and interface colour, any colour, light and dark) · **tables:** paste from Excel/Word/Sheets, photos in cells, move rows and columns, and colour cells, rows and columns with text styles · **scroll bars** along the bottom and right of the board when cards are off screen · **page guides** on the board (A4/Letter, on or off) that the PDF follows exactly · **pressure-sensitive pens** and **shapes** (lines, arrows, rectangles, ellipses) in sketches · **YouTube, Vimeo, Dailymotion and Loom videos** playing in link cards · **iPhone and iPad app** · web clipper for **Safari** · Android: Android's own **folder picker** for sync, and **picture/PDF export**.
+**New in 1.5:** **use Pocket-Canvas in a web browser** from your own server · **portable versions** for Windows, Mac and Linux · **share boards with other people and edit them together, live**, through your own **Pocket-Canvas Server** (which also syncs your devices without a sync folder) · **PDF for printing** on A4 or Letter pages, portrait, landscape or best fit, with no card cut in half · **your own interface colours** (accent and interface colour, any colour, light and dark) · **tables:** paste from Excel/Word/Sheets, photos in cells, move rows and columns, and colour cells, rows and columns with text styles · **scroll bars** along the bottom and right of the board when cards are off screen · **page guides** on the board (A4/Letter, on or off) that the PDF follows exactly · **pressure-sensitive pens** and **shapes** (lines, arrows, rectangles, ellipses) in sketches · **YouTube, Vimeo, Dailymotion and Loom videos** playing in link cards · **iPhone and iPad app** · web clipper for **Safari** · Android: Android's own **folder picker** for sync, and **picture/PDF export**.
 
 **New in 1.4:** more accurate colour names on Colour cards · **Android app** that syncs with your computers · text formatting (font, size, bold, italic, underline, strikethrough, colour) · line styles (no arrows, arrows at both ends, dashed, dotted, thick, straight) and lines that float freely on the board · delete table rows and columns with one click · 51 board-icon colours plus any colour you like · no more gap at the edge of the board.
 
@@ -168,6 +168,10 @@ Pocket-Canvas is a desktop, Android, iPhone and iPad app for organising ideas vi
 - The owner can add or remove people or stop sharing; others can leave. Everyone keeps their copy.
 - **Live** / **Offline** shown in the top bar; changes made offline are sent when the server is back
 - Passwords and sign-in keys are stored hashed; password-protected boards stay encrypted on the server and can't be shared
+- **Use Pocket-Canvas in a web browser** (Chrome, Edge, Firefox, Safari; computer, phone or tablet) straight from your server's address, with nothing installed:
+  - sign in, or create an account with the join code
+  - all your boards, live, with sharing, pictures, tables, sketches, exports (downloaded) and the desktop keyboard shortcuts
+  - a copy is kept in the browser for quick reloads; **Sign out** removes it
 
 ## Syncing between computers and phones
 
@@ -242,14 +246,16 @@ Pocket-Canvas is a desktop, Android, iPhone and iPad app for organising ideas vi
 
 ## Platforms and installing
 
-- **Windows:** installer (.exe). You choose the install folder, and it adds desktop and Start menu shortcuts.
+- **Windows:** installer (.exe). You choose the install folder, and it adds desktop and Start menu shortcuts. Also a **portable .exe** that runs without installing and keeps its boards in a "Pocket-Canvas Data" folder beside it (for a USB stick or a cloud-drive folder).
 - **Linux:** AppImage (runs without installing) and .deb package (Ubuntu, Debian, Mint…)
-- **macOS:** .dmg
+- **macOS:** .dmg, plus a .zip that runs without installing; for Apple-chip (arm64) and Intel (x64) Macs
+- **Portable mode:** the AppImage and the Mac app also keep their boards beside themselves when a "Pocket-Canvas Data" folder is there
+- **Web browser:** the browser version served by a Pocket-Canvas Server (no installing at all)
 - **Android:** an .apk to install on phones and tablets (Android 7 or newer), with the same boards, cards, templates, comments, Recycle bin, password-protected boards, sync and sharing. A ⋮ menu takes the place of the menu bar, Back closes windows and steps out of boards, and exports go through the share sheet. No special permissions: the sync folder is chosen with Android's folder picker.
 - **iPhone and iPad:** the same app for iOS 15 or newer, syncing through a Pocket-Canvas Server, with Apple Pencil pressure in sketches. GitHub builds an iOS Simulator app and an unsigned .ipa to install with your own Apple Account (see `docs/IOS.md`).
 - Folder backups, the browser extension and spelling settings are desktop-only.
-- **Pocket-Canvas Server:** runs on any machine with Node.js 18+, or in Docker
-- A ready-made GitHub Actions workflow runs all the automated tests, then builds all three installers, the Android app, the iPhone and iPad app, the Safari extension app and the browser-extension zip
+- **Pocket-Canvas Server:** runs on any machine with Node.js 18+ (a ready-made zip, including the browser version), or in Docker
+- A ready-made GitHub Actions workflow runs all the automated tests, then builds all three installers, the portable versions, the Android app, the iPhone and iPad app, the Safari extension app, the browser-extension zip and the server package
 
 ---
 
