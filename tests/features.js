@@ -269,7 +269,7 @@ function request(method, p, { body, token, origin } = {}) {
     // ================= Templates =================
     await ex(`openTemplates('new-board', toWorld(500, 500))`);
     await sleep(200);
-    check('templates: the gallery shows the six ready-made templates', await ex(`document.querySelectorAll('.tpl[data-id^="builtin-"]').length===6`));
+    check('templates: the gallery shows the eight ready-made templates', await ex(`document.querySelectorAll('.tpl[data-id^="builtin-"]').length===8`));
     await shot('templates.png');
     await ex(`document.querySelector('.tpl[data-id="builtin-projectplan"]').click()`);
     await sleep(400);
@@ -624,6 +624,77 @@ function request(method, p, { body, token, origin } = {}) {
     check('backup: a backup of the boards is made just before restoring', fs.readFileSync(path.join(bkRoot, 'snapshots', fs.readdirSync(path.join(bkRoot, 'snapshots')).sort().pop()), 'utf8').includes('after the backup'));
     await ex(`api.backupSet({ keep: 30 })`);
     await ex(`openSettings('backups')`); await sleep(500); await shot('settings-backups.png');
+
+    // ================= Shapes: flowcharts and network diagrams =================
+    await ex(`document.querySelectorAll('#modal-root .modal-x').forEach((x) => x.click()); true`); await sleep(200);
+    await ex(`(() => { const c = makeCard(B(), 'board', 2600, 60, { title: 'Diagrams' }); renderBoard(); go(c.boardId); return true; })()`); await sleep(300);
+    check('shapes: the tool bar has Shapes', await ex(`!!document.querySelector('#rail .tool[data-tool="shape"]')`));
+    await ex(`document.querySelector('#rail .tool[data-tool="shape"]').click()`); await sleep(300);
+    check('shapes: Shapes opens a picker with flowchart shapes', await ex(`!!document.querySelector('.shape-picker') && document.querySelectorAll('.shape-picker .sp-item').length >= 10 && document.querySelector('.sp-tab.on').textContent === 'Flowchart'`));
+    await shot('shape-picker-flow.png');
+    await ex(`document.querySelector('.sp-tab[data-tab="net"]').click()`); await sleep(150);
+    check('shapes: …and a Network tab with devices', await ex(`document.querySelectorAll('.shape-picker .sp-item').length >= 18 && ['Router', 'Switch', 'Firewall', 'Server', 'Wireless access point', 'Internet'].every(n => [...document.querySelectorAll('.sp-item span')].some(s => s.textContent === n))`));
+    await shot('shape-picker-net.png');
+    await ex(`document.querySelector('.sp-item[data-kind="router"]').click()`); await sleep(300);
+    const sh_rtr = await ex(`Object.values(B().cards).find(c => c.type === 'shape' && c.kind === 'router').id`);
+    check('shapes: a network device is an icon with a name, ready to type', await ex(`(() => { const el = document.querySelector('.card[data-id="${sh_rtr}"]'); return el.classList.contains('net') && !!el.querySelector('.net-ico svg') && document.activeElement && document.activeElement.dataset.field === 'label'; })()`));
+    await ex(`document.execCommand('insertText', false, 'Main router')`); await sleep(100);
+    await ex(`(() => { const ed = document.querySelector('.card[data-id="${sh_rtr}"] [data-field="sub"]'); makeEditable(ed); ed.focus(); document.execCommand('insertText', false, '192.168.1.1'); ed.blur(); })()`); await sleep(200);
+    check('shapes: …with a second line for an IP address or note', await ex(`B().cards['${sh_rtr}'].label === 'Main router' && B().cards['${sh_rtr}'].sub === '192.168.1.1'`));
+    // flowchart shapes
+    await ex(`clearSelection(); openShapePicker({ x: 300, y: 200 })`); await sleep(200);
+    await ex(`document.querySelector('.sp-tab[data-tab="flow"]').click()`); await sleep(100);
+    await ex(`document.querySelector('.sp-item[data-kind="decision"]').click()`); await sleep(300);
+    const sh_dec = await ex(`Object.values(B().cards).find(c => c.type === 'shape' && c.kind === 'decision').id`);
+    check('shapes: a decision is a diamond with its words inside', await ex(`(() => { const el = document.querySelector('.card[data-id="${sh_dec}"]'); return el.classList.contains('flow') && !!el.querySelector('.sh-svg polygon') && !!el.querySelector('.sh-label .editable'); })()`));
+    await ex(`document.execCommand('insertText', false, 'Working?'); document.activeElement.blur()`); await sleep(150);
+    // resize both ways
+    const sh_h0 = await ex(`document.querySelector('.card[data-id="${sh_dec}"]').offsetHeight`);
+    await ex(`selectOnly('${sh_dec}')`); await sleep(100);
+    const sh_rz = await ex(`(() => { const r = document.querySelector('.card[data-id="${sh_dec}"] > .resize').getBoundingClientRect(); return [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2)]; })()`);
+    await mouse('mouseMove', ...sh_rz); await mouse('mouseDown', ...sh_rz);
+    for (let k = 1; k <= 5; k++) await mouse('mouseMove', sh_rz[0] + k * 12, sh_rz[1] + k * 10);
+    await mouse('mouseUp', sh_rz[0] + 60, sh_rz[1] + 50); await sleep(200);
+    check('shapes: flowchart shapes can be resized in both directions', await ex(`document.querySelector('.card[data-id="${sh_dec}"]').offsetHeight`) > sh_h0 + 20 && await ex(`B().cards['${sh_dec}'].h > ${sh_h0}`));
+    // + adds the next step, joined with an elbow line
+    await ex(`selectOnly('${sh_dec}')`); await sleep(150);
+    check('shapes: a selected shape shows + buttons on each side', await ex(`[...document.querySelectorAll('.card[data-id="${sh_dec}"] > .sh-plus')].filter(b => getComputedStyle(b).display !== 'none').length === 4`));
+    const sh_nLinks = await ex(`B().links.length`);
+    await click(await centre(`.card[data-id="${sh_dec}"] > .sh-plus.bottom`)); await sleep(300);
+    check('shapes: + adds the next step below, already joined', await ex(`B().links.length === ${sh_nLinks + 1} && (() => { const l = B().links[B().links.length - 1]; const n = B().cards[l.to]; return l.from === '${sh_dec}' && n.kind === 'process' && n.y > B().cards['${sh_dec}'].y && l.shape === 'elbow'; })()`));
+    check('shapes: …and you can type its words straight away', await ex(`document.activeElement && document.activeElement.dataset.field === 'label'`));
+    await ex(`document.execCommand('insertText', false, 'Restart it'); document.activeElement.blur()`); await sleep(150);
+    check('lines: elbow lines are drawn with right angles', await ex(`(() => { const l = B().links[B().links.length - 1]; const d = document.querySelector('#links path.link[data-id="' + l.id + '"]').getAttribute('d'); return /[HV]/.test(d) || /L/.test(d); })()`));
+    // line labels
+    const sh_lid = await ex(`B().links[B().links.length - 1].id`);
+    await ex(`(() => { const p = document.querySelector('#links path.hit[data-id="${sh_lid}"]'); const r = p.getBoundingClientRect(); p.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 })); })()`); await sleep(300);
+    check('lines: double-clicking a line asks for a label', await ex(`!!document.querySelector('.modal input[name="label"]')`));
+    await ex(`(() => { const i = document.querySelector('.modal input[name="label"]'); i.value = 'No'; [...document.querySelectorAll('.modal-actions button')].find(b => b.textContent === 'Save').click(); })()`); await sleep(300);
+    check('lines: the label is shown in the middle of the line', await ex(`B().links.find(l => l.id === '${sh_lid}').label === 'No' && document.querySelector('#links text.link-label[data-id="${sh_lid}"]').textContent === 'No'`));
+    check('lines: the line menu offers Elbow lines and labels', await ex(`(() => { selected.clear(); selectedLink = '${sh_lid}'; refreshSelection(); const p = document.querySelector('#links path.hit[data-id="${sh_lid}"]'); const r = p.getBoundingClientRect(); p.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 })); const t = [...document.querySelectorAll('#ctx button')].map(b => b.textContent); hideMenu(); return t.some(x => x.includes('Elbow')) && t.some(x => x.includes('Change label')); })()`));
+    // connect the router to the decision with a labelled straight line, change shapes
+    await ex(`(() => { B().links.push({ id: 'netl1', from: '${sh_rtr}', to: '${sh_dec}', arrow: 'none', shape: 'straight', label: 'VLAN 10' }); drawLinks(); })()`); await sleep(100);
+    check('lines: network cables can carry labels like a VLAN', await ex(`document.querySelector('#links text.link-label[data-id="netl1"]').textContent === 'VLAN 10'`));
+    await ex(`changeShape(['${sh_dec}'], 'process')`); await sleep(200);
+    check('shapes: a shape can be changed to another kind, keeping its words and lines', await ex(`B().cards['${sh_dec}'].kind === 'process' && B().cards['${sh_dec}'].label === 'Working?' && B().links.some(l => l.from === '${sh_dec}' || l.to === '${sh_dec}') && !!document.querySelector('.card[data-id="${sh_dec}"] .sh-box.rect')`));
+    await ex(`addShape('area', { x: 300, y: 300 }); document.activeElement && document.activeElement.blur && document.activeElement.blur()`); await sleep(250);
+    check('shapes: an Area (for a VLAN or a room) goes behind everything else', await ex(`(() => { const a = Object.values(B().cards).find(c => c.kind === 'area'); return B().order[0] === a.id && !!document.querySelector('.card[data-id="' + a.id + '"] .sh-box.area'); })()`));
+    check('shapes: shapes show in search and Markdown', await ex(`cardText(B().cards['${sh_rtr}']).includes('192.168.1.1') && boardToMd(cur, 1).includes('[Router] Main router (192.168.1.1)')`));
+    await shot('shapes-board.png');
+    // templates
+    await ex(`useTemplate(BUILTIN_TEMPLATES.find(t => t.id === 'builtin-flowchart'), 'new-board')`); await sleep(800);
+    check('templates: a Flowchart template with Yes/No labelled lines', await ex(`Object.values(B().cards).filter(c => c.type === 'shape').length >= 5 && B().links.filter(l => l.label).map(l => l.label).sort().join() === 'No,Yes' && document.querySelectorAll('#links text.link-label').length === 2`));
+    await shot('template-flowchart.png');
+    await ex(`go(store.boards[cur].parentId)`); await sleep(300);
+    await ex(`useTemplate(BUILTIN_TEMPLATES.find(t => t.id === 'builtin-network'), 'new-board')`); await sleep(800);
+    check('templates: a Network diagram template with devices, VLAN areas and labelled cables', await ex(`(() => { const cs = Object.values(B().cards).filter(c => c.type === 'shape'); return cs.filter(c => NET_DEVICES[c.kind]).length >= 10 && cs.filter(c => c.kind === 'area').length === 3 && B().links.some(l => l.label === 'VLAN 20') && B().order.indexOf(cs.find(c => c.kind === 'area').id) < B().order.indexOf(cs.find(c => c.kind === 'router' || c.kind === 'firewall').id); })()`));
+    await shot('template-network.png');
+    const sh_diagPng = path.join(tmp, 'network.png');
+    await ex(`flushSave()`); await sleep(300);
+    const sh_dr = await exportBoard({ appDir: path.join(__dirname, '..'), boardId: await ex(`cur`), format: 'png', quality: 'standard', background: 'white', theme: 'light', filePath: sh_diagPng });
+    check('shapes: diagrams export as a picture', sh_dr.ok && fs.statSync(sh_diagPng).size > 20000);
+    if (process.env.SHOT_DIR) fs.copyFileSync(sh_diagPng, path.join(process.env.SHOT_DIR, 'export-network.png'));
+    await ex(`go(store.root)`); await sleep(300);
 
     // ================= Appearance: interface colours =================
     const cssVar = (v) => ex(`getComputedStyle(document.documentElement).getPropertyValue('${v}').trim()`);

@@ -138,6 +138,59 @@ const BUILTIN_TEMPLATES = [
       add('sketch', 40, 300, { w: 300, vw: 600, vh: 420 });
       return t;
     }
+  },
+  {
+    id: 'builtin-flowchart', icon: 'checklist', name: 'Flowchart', color: '#5a5bd1',
+    description: 'Steps, decisions and where they lead. Select a shape and click + to add the next one.',
+    build() {
+      const { t, add, line } = templateBuilder();
+      const sh = (kind, x, y, label, extra = {}) => add('shape', x, y, { ...shapeDefaults(kind), label, ...extra });
+      add('heading', 40, 20, { text: 'Flowchart', w: 420 });
+      const start = sh('terminal', 220, 100, 'Start', { color: '#4f9d4f' });
+      const step = sh('process', 215, 210, 'First step');
+      const ask = sh('decision', 220, 350, 'Is it done?', { color: '#e8a33d' });
+      const end = sh('terminal', 220, 540, 'End', { color: '#d0453b' });
+      const fix = sh('process', 480, 370, 'Sort it out');
+      const go = { shape: 'elbow', arrow: 'end' };
+      line(start, step, go); line(step, ask, go);
+      line(ask, end, { ...go, label: 'Yes' }); line(ask, fix, { ...go, label: 'No' }); line(fix, step, go);
+      add('note', 720, 100, { w: 300, color: '#5a5bd1', html: '<p><b>Building a flowchart</b></p><ul><li>Add shapes with <b>Shapes</b> in the tool bar.</li><li>Select a shape and click a <b>+</b> beside it for the next step, already joined.</li><li>Double-click a line to give it a label, like <b>Yes</b> or <b>No</b>.</li><li>Right-click a line for elbow, straight or curved lines.</li></ul>' });
+      return t;
+    }
+  },
+  {
+    id: 'builtin-network', icon: 'globe', name: 'Network diagram', color: '#2a9d8f',
+    description: 'Your network: internet connection, firewall, switches and devices, grouped into areas such as VLANs.',
+    build() {
+      const { t, add, line } = templateBuilder();
+      const dev = (kind, x, y, label, sub = '') => add('shape', x, y, { ...shapeDefaults(kind), label, sub });
+      const area = (x, y, w, h, label, color) => add('shape', x, y, { ...shapeDefaults('area'), w, h, label, color });
+      // areas first, so they sit behind the devices
+      area(40, 880, 380, 230, 'Servers – VLAN 20', '#8a55cf');
+      area(450, 880, 440, 230, 'Office – VLAN 10', '#3a7be0');
+      area(920, 880, 310, 230, 'Cameras and sensors – VLAN 30', '#db4f74');
+      add('heading', 40, 20, { text: 'Network diagram', w: 420 });
+      const net = dev('internet', 440, 40, 'Internet');
+      const modem = dev('modem', 440, 230, 'Modem / ONT', 'ISP connection');
+      const fw = dev('firewall', 440, 420, 'Firewall', '192.168.0.1');
+      const sw = dev('switch', 440, 610, 'Core switch', '192.168.0.2');
+      const ap = dev('wifi', 800, 610, 'Wi-Fi', 'Office SSID');
+      const srv = dev('server', 80, 950, 'Server', '10.0.20.10');
+      dev('storage', 250, 950, 'NAS', '10.0.20.20');
+      const pc = dev('desktop', 620, 950, 'Office PC', '10.0.10.21');
+      dev('laptop', 480, 950, 'Laptop', 'DHCP');
+      dev('printer', 760, 950, 'Printer', '10.0.10.50');
+      const cam = dev('camera', 950, 950, 'Camera', '10.0.30.11');
+      dev('sensor', 1090, 950, 'Sensor', '10.0.30.20');
+      const cable = { shape: 'straight', arrow: 'none' };
+      line(net, modem, cable); line(modem, fw, { ...cable, label: 'WAN' }); line(fw, sw, { ...cable, label: '1 Gbps', width: 3 });
+      line(sw, ap, { ...cable, label: 'PoE' });
+      line(sw, srv, { ...cable, label: 'VLAN 20' });
+      line(sw, pc, { ...cable, label: 'VLAN 10' });
+      line(sw, cam, { ...cable, label: 'VLAN 30', dash: 'dashed' });
+      add('note', 880, 60, { w: 320, color: '#2a9d8f', html: '<p><b>Making your network diagram</b></p><ul><li>Add devices with <b>Shapes › Network</b>.</li><li>Click a device’s name to change it; the line under it is for an IP address or a note.</li><li><b>Area / group</b> (in Shapes › Flowchart) draws a dashed box for a VLAN, a room or a site.</li><li>Double-click a cable to label it (a VLAN, a speed, a port).</li></ul>' });
+      return t;
+    }
   }
 ];
 
@@ -241,6 +294,7 @@ function estHeight(c, cards) {
     case 'table': return 34 * (c.rows || []).length + 30;
     case 'sketch': return c.w * (c.vh / c.vw);
     case 'media': return c.kind === 'video' ? c.w * 0.62 : 120;
+    case 'shape': return c.h || 118;
     case 'column': return 50 + (c.items || []).reduce((h, id) => { const k = cards.find((x) => x.id === id); return h + (k ? estHeight({ ...k, w: c.w - 16 }, cards) + 8 : 0); }, 0);
     default: return 100;
   }
@@ -253,13 +307,25 @@ function previewSvg(payload) {
   const x1 = Math.min(...rects.map((r) => r.x)), y1 = Math.min(...rects.map((r) => r.y));
   const x2 = Math.max(...rects.map((r) => r.x + r.w)), y2 = Math.max(...rects.map((r) => r.y + r.h));
   const pad = 30;
+  const byId = new Map(rects.map((r) => [r.c.id, r]));
+  const lines = (payload.links || []).map((l) => {
+    const a = byId.get(l.from), b = byId.get(l.to);
+    return a && b ? `<line x1="${a.x + a.w / 2}" y1="${a.y + a.h / 2}" x2="${b.x + b.w / 2}" y2="${b.y + b.h / 2}" stroke="#8a8378" stroke-width="3"/>` : '';
+  }).join('');
   const shapes = rects.map(({ c, x, y, w, h }) => {
+    if (c.type === 'shape') {
+      const col = safeColor(c.color || '#5f6b7a');
+      if (c.kind === 'area') return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="${col}14" stroke="${col}" stroke-width="3" stroke-dasharray="10 7"/>`;
+      if (NET_DEVICES[c.kind]) return `<rect x="${x + w / 2 - 32}" y="${y + 6}" width="64" height="64" rx="16" fill="#fff" stroke="${col}" stroke-width="3"/><rect x="${x + 15}" y="${y + 82}" width="${w - 30}" height="12" rx="4" fill="#57534e"/>`;
+      if (c.kind === 'decision') return `<polygon points="${x + w / 2},${y} ${x + w},${y + h / 2} ${x + w / 2},${y + h} ${x},${y + h / 2}" fill="#fff" stroke="${col}" stroke-width="3"/>`;
+      return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${c.kind === 'terminal' ? h / 2 : c.kind === 'circle' ? w / 2 : 4}" fill="#fff" stroke="${col}" stroke-width="3"/>`;
+    }
     const fill = c.type === 'swatch' ? safeColor(c.hex) : c.type === 'board' ? safeColor(c.color || '#8a7f70') : PREVIEW_FILL[c.type] || '#fff';
     if (c.type === 'heading') return `<rect x="${x}" y="${y + 8}" width="${Math.min(w, 300)}" height="20" rx="4" fill="#57534e"/>`;
     const accent = c.color && c.type !== 'board' ? `<rect x="${x}" y="${y}" width="${c.type === 'column' ? w : 6}" height="${c.type === 'column' ? 6 : h}" fill="${safeColor(c.color)}"/>` : '';
     return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="#00000018"/>${accent}`;
   }).join('');
-  return `<svg viewBox="${x1 - pad} ${y1 - pad} ${x2 - x1 + pad * 2} ${y2 - y1 + pad * 2}" preserveAspectRatio="xMidYMid meet">${shapes}</svg>`;
+  return `<svg viewBox="${x1 - pad} ${y1 - pad} ${x2 - x1 + pad * 2} ${y2 - y1 + pad * 2}" preserveAspectRatio="xMidYMid meet">${lines}${shapes}</svg>`;
 }
 
 function openTemplates(mode = 'new-board', pos = null) {

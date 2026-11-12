@@ -24,7 +24,7 @@ const linksG = $('#links-g');
 const COLORS = ['#e0673a', '#e8a33d', '#d9bf2b', '#5bb276', '#38a3a5', '#3a7be0',
   '#6a5fd6', '#c4579f', '#d0453b', '#8a7f70', '#57534e', null];
 
-const DEFAULT_W = { note: 240, heading: 360, todo: 250, link: 280, image: 300, file: 270, board: 130, column: 280, swatch: 140, table: 380, sketch: 320, media: 320 };
+const DEFAULT_W = { shape: 170, note: 240, heading: 360, todo: 250, link: 280, image: 300, file: 270, board: 130, column: 280, swatch: 140, table: 380, sketch: 320, media: 320 };
 
 const ICONS = {
   note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>',
@@ -41,12 +41,13 @@ const ICONS = {
   sketch: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c3-6 5-8 7-6s-1 5 1 6 4-5 6-7 3 1 4 2"/><path d="M15 3.5l3 3-8 8H7v-3z" opacity=".55"/></svg>',
   media: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.3v5.4l4.6-2.7z" fill="currentColor"/></svg>',
   comment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg>',
+  shape: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="2.5" y="3" width="8" height="6" rx="1"/><path d="M17.5 2.5l4 4-4 4-4-4z"/><rect x="8" y="16" width="8" height="5.5" rx="2.75"/><path d="M6.5 9v4.5h5.5V16M17.5 10.5v3H12" stroke-width="1.3"/></svg>',
   settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>'
 };
 
 const TOOLS = [
   ['note', 'Note'], ['link', 'Link'], ['todo', 'To-do'], ['line', 'Line'], ['board', 'Board'],
-  ['column', 'Column'], ['table', 'Table'], ['sketch', 'Sketch'], 'sep',
+  ['column', 'Column'], ['table', 'Table'], ['sketch', 'Sketch'], ['shape', 'Shapes'], 'sep',
   ['heading', 'Heading'], ['image', 'Image'], ['media', 'Media'], ['file', 'File'], ['swatch', 'Colour']
 ];
 
@@ -104,6 +105,7 @@ function cardDefaults(type) {
     case 'table': return { header: true, rows: [['', '', ''], ['', '', ''], ['', '', '']] };
     case 'sketch': return { vw: 640, vh: 440, strokes: [] };
     case 'media': return { asset: '', name: '', size: 0, kind: 'audio', caption: '' };
+    case 'shape': return { kind: 'process', label: '' };
     default: return {};
   }
 }
@@ -447,6 +449,9 @@ function buildCard(c, b) {
     case 'sketch':
       html = buildSketchHtml(c);
       break;
+    case 'shape':
+      html = buildShapeHtml(c, el);
+      break;
     case 'media':
       html = buildMediaHtml(c);
       break;
@@ -685,6 +690,7 @@ function addAssetCards(files, pos) {
 
 async function addTool(type, pos) {
   if (type === 'line') { toggleConnect(); return; }
+  if (type === 'shape') { openShapePicker(pos); return; }
   if (type === 'image' || type === 'file' || type === 'media') {
     const files = await api.pickFiles(type === 'file' ? 'any' : type);
     addAssetCards(files, pos);
@@ -1130,7 +1136,7 @@ viewport.addEventListener('pointerdown', (e) => {
   const handle = e.target.closest('circle.lh');
   if (handle) { e.preventDefault(); startEndDrag(e, handle.dataset.id, handle.dataset.end); return; }
 
-  const linkHit = e.target.closest('path.hit, path.link');
+  const linkHit = e.target.closest('path.hit, path.link, text.link-label');
   if (linkHit) {
     e.preventDefault();
     selected.clear(); selectedLink = linkHit.dataset.id; refreshSelection();
@@ -1214,16 +1220,24 @@ function startMarquee(e) {
 
 function startResize(e, id) {
   const b = B(), c = b.cards[id];
-  const sx = e.clientX, ow = c.w;
+  const sx = e.clientX, sy = e.clientY, ow = c.w, oh = c.h;
   const snap = JSON.stringify(store);
+  // flowchart shapes stretch both ways; small shapes and network devices can be narrower than other cards
+  const tall = c.type === 'shape' && !isNetKind(shapeKind(c));
+  const minW = c.type === 'shape' ? 40 : 120;
   const move = (ev) => {
-    c.w = Math.round(clamp(ow + (ev.clientX - sx) / b.view.z, 120, 1600));
+    c.w = Math.round(clamp(ow + (ev.clientX - sx) / b.view.z, minW, 1600));
     const el = cardEl(id); if (el) el.style.width = c.w + 'px';
+    if (tall) {
+      c.h = Math.round(clamp((oh || el.offsetHeight) + (ev.clientY - sy) / b.view.z, 30, 1600));
+      if (ev.shiftKey && ['circle', 'decision'].includes(c.kind)) c.h = c.w; // Shift: keep it even
+      if (el) el.style.height = c.h + 'px';
+    }
     drawLinks();
   };
   const up = () => {
     window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
-    if (c.w !== ow) { pushUndo(snap); scheduleSave(); }
+    if (c.w !== ow || c.h !== oh) { pushUndo(snap); scheduleSave(); }
   };
   window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
 }
@@ -1351,6 +1365,8 @@ viewport.addEventListener('wheel', (e) => {
 }, { passive: false });
 
 viewport.addEventListener('dblclick', (e) => {
+  const onLine = e.target.closest('path.hit, path.link, text.link-label');
+  if (onLine) { const l = B().links.find((x) => x.id === onLine.dataset.id); if (l) editLineLabel(l); return; }
   if (e.target.closest('.card') || e.target.closest('path')) return;
   const c = addCard('note', toWorld(e.clientX, e.clientY));
   startEditOf(c.id);
@@ -1505,6 +1521,7 @@ function cardText(c) {
     case 'table': return c.rows.map((r) => r.join('\t')).join('\n');
     case 'media': return [c.name, c.caption].filter(Boolean).join(' — ');
     case 'sketch': return '';
+    case 'shape': return [c.label, c.sub].filter(Boolean).join(' — ');
     default: return '';
   }
 }
@@ -1551,7 +1568,7 @@ viewport.addEventListener('contextmenu', (e) => {
   if (t.isContentEditable || (t.tagName === 'INPUT' && t.type !== 'checkbox' && t.type !== 'color' && t.type !== 'range') || t.tagName === 'TEXTAREA') return;
   e.preventDefault();
   const b = B();
-  const linkHit = e.target.closest('path.hit, path.link');
+  const linkHit = e.target.closest('path.hit, path.link, text.link-label');
   if (linkHit) {
     const l = b.links.find((x) => x.id === linkHit.dataset.id);
     selectedLink = l.id; selected.clear(); refreshSelection();
@@ -1569,6 +1586,7 @@ viewport.addEventListener('contextmenu', (e) => {
       { label: 'Add column here', run: () => startEditOf(addCard('column', pos).id) },
       { label: 'Add table here', run: () => addTool('table', pos) },
       { label: 'Add sketch here', run: () => addTool('sketch', pos) },
+      { label: 'Add shape here (flowchart, network)…', run: () => openShapePicker(pos) },
       '-',
       { label: 'Insert a template…', run: () => openTemplates('insert') },
       { label: 'Change this board’s icon…', run: () => openBoardIcon(cur) },
@@ -1610,6 +1628,7 @@ viewport.addEventListener('contextmenu', (e) => {
     }
   }
   if (c.type === 'sketch') items.push({ label: 'Draw', hint: 'Double-click', run: () => startSketch(id) });
+  if (c.type === 'shape') items.push(...shapeMenuItems(c, ids.filter((x) => b.cards[x] && b.cards[x].type === 'shape')));
   if (c.type === 'image' && !c.asset) items.push({ label: 'Choose picture…', run: () => cardAction('pick-image', c) });
   if ((c.type === 'image' || c.type === 'file' || c.type === 'media') && c.asset) {
     items.push({ label: 'Open with default app', run: () => api.openAsset(c.asset) });
@@ -1795,6 +1814,7 @@ function boardToMd(bid, depth) {
       }
       case 'media': return `${c.kind === 'video' ? '🎬' : '🎵'} [${c.name || 'Media'}](assets/${c.asset})` + (c.caption ? ` — ${c.caption}` : '') + '\n\n';
       case 'sketch': return '_(sketch — export the board as a picture or PDF to see it)_\n\n';
+      case 'shape': return `- ${c.kind === 'area' ? '**' + (c.label || 'Area') + '**' : `[${shapeName(shapeKind(c))}] ${c.label || ''}`}${c.sub ? ` (${c.sub})` : ''}\n\n`;
       case 'column': return `**${c.title || 'Column'}**\n\n` + c.items.map((id) => sb.cards[id]).filter(Boolean).map((k) => one(k, d)).join('');
       case 'board': return store.boards[c.boardId] ? boardToMd(c.boardId, d + 1) : '';
       default: return '';

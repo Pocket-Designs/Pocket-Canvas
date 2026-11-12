@@ -7,6 +7,7 @@ This guide is for anyone using the app. You don't need any technical knowledge.
 ### What's new
 
 **Version 1.5**
+- **Flowcharts and network diagrams** with the new **Shapes** tool: 12 flowchart shapes and 19 network devices (router, switch, firewall, server, Wi-Fi and more), **+** buttons to add the next step already joined, right-angled **elbow lines**, **labels on lines**, and two new templates ([section 4](#shapes-flowcharts-and-network-diagrams))
 - **Use Pocket-Canvas in a web browser**, with nothing installed, from your own Pocket-Canvas Server ([section 28](#28-using-pocket-canvas-in-a-web-browser))
 - **Portable versions** that run without installing, for Windows, Mac and Linux ([section 1](#portable-versions-no-installing))
 - **Share boards with other people** and edit them together, live, through your own **Pocket-Canvas Server**, which also syncs your devices without a sync folder ([section 26](#26-sharing-boards-and-your-own-server))
@@ -45,7 +46,7 @@ This guide is for anyone using the app. You don't need any technical knowledge.
 **Version 1.1**
 - Sync between computers, templates, comments, link previews, tables, audio and video, sketches, PDF/picture export and the browser extension
 
-Version 1.5.2 · © 2026 Pocket-Designs · pocket-designs@proton.me
+Version 1.5.4 · © 2026 Pocket-Designs · pocket-designs@proton.me
 
 ---
 
@@ -165,6 +166,7 @@ There are several ways to add a card. Use whichever feels natural.
 - **Double-click** an empty spot on the board to start a note right there.
 - **Right-click** an empty spot and choose what to add.
 - **Press a letter** (when you're not typing in a card): **N** note, **T** to-do, **H** heading, **B** board, **C** column, **K** link, **G** table, **S** sketch.
+- **Shapes** for flowcharts and network diagrams: click **Shapes** in the toolbar and pick one (see [Shapes](#shapes-flowcharts-and-network-diagrams)).
 - **Paste** (Ctrl+V): a copied picture becomes a picture card, a copied web address becomes a link card, and copied text becomes a note.
 - **Drag from your computer:** drop pictures, documents, music, videos or web links from your desktop, file manager or web browser onto the board. You can drop several at once.
 - **Start from a template:** see [Templates](#11-templates).
@@ -301,6 +303,20 @@ A blank sheet to draw on: diagrams, doodles, storyboard frames, handwriting.
 - Works with a mouse, touchpad, touch screen or drawing pen.
 - **Pressure-sensitive:** with a pen that senses pressure (such as a Wacom pen, Surface Pen, S Pen or Apple Pencil), pressing harder draws a thicker line. A mouse draws at an even thickness.
 - Drawings stay crisp however much you zoom or resize the card.
+
+### Shapes (flowcharts and network diagrams)
+Use shapes to draw a process step by step, or a map of your network.
+- Click **Shapes** in the toolbar (or right-click an empty spot › **Add shape here…**). Pick from two tabs:
+  - **Flowchart:** process, start/end, decision (diamond), input/output, document, database, sub-process, preparation, manual step, delay, connector (circle) and **Area / group**.
+  - **Network:** internet, modem/ONT, router, firewall, switch, wireless access point, server, virtual machine, storage/NAS, computer, laptop, phone, tablet, desk phone, printer, camera (CCTV), sensor/IoT, person and site/building.
+- Type straight away: flowchart shapes have their words inside; network devices have a **name**, and a second line underneath for an **IP address or a note**.
+- **Add the next step:** select a flowchart shape and click a **+** on any side. A new shape appears there, already joined with an arrow, ready for you to type. After a decision you get a normal step.
+- **Resize** flowchart shapes from the corner, in both directions. Hold **Shift** to keep a circle or diamond even.
+- **Area / group** draws a dashed box with a title, and always sits behind other cards. Use it for a VLAN, a room, an office or a site, then put devices inside it.
+- **Change a shape** without losing its words or lines: right-click › **Change shape…**.
+- Change a shape's colour from the right-click menu, as with other cards.
+- Join shapes with the **Line** tool. For flowcharts, **elbow** lines (right angles) look neatest; for networks, straight lines with no arrows. Double-click a line to give it a label, such as **Yes**, **No**, **VLAN 10** or **1 Gbps** (see [Drawing lines and arrows](#10-drawing-lines-and-arrows)).
+- For a quick start, use the **Flowchart** or **Network diagram** template (see [Templates](#11-templates)).
 
 ### Board
 A board inside your board. See [Boards inside boards](#7-boards-inside-boards).
@@ -458,9 +474,12 @@ While you're drawing, and whenever a line is selected, a **line style bar** appe
 | Arrows | none · at the end · at the start · at both ends |
 | Pattern | solid · dashed · dotted |
 | Thickness | thin · medium · thick |
-| Shape | curved · straight |
+| Shape | curved · straight · elbow (right angles, for flowcharts) |
 
 Whatever you pick is also used for your next new line. The bar also has **Delete**.
+
+### Labels on lines
+**Double-click** a line to type a label for it, such as **Yes** or **No** in a flowchart, or **VLAN 10** or **1 Gbps** on a network cable. The label sits in the middle of the line. Double-click the label to change it, or right-click the line › **Remove label**.
 
 ### Moving lines and their ends
 - **Ends on a card** follow the card when you move it.
@@ -471,6 +490,7 @@ Whatever you pick is also used for your next new line. The bar also has **Delete
 
 ### Right-clicking a line
 You get the same choices as the style bar, plus:
+- **Add a label…** / **Change label…** and **Remove label**
 - **colour**
 - **Reverse direction**
 - **Detach from cards**: frees both ends where they are
@@ -492,6 +512,8 @@ Templates give you a ready-made layout so you don't start from a blank board.
 | **Mind map** | A main idea joined to six branches |
 | **Weekly planner** | A column with a to-do list for each day, and a focus for the week |
 | **Brainstorm** | A question, coloured idea notes, a sketch area and a *Best ideas* column |
+| **Flowchart** | Start, a step, a Yes/No decision and End, joined with labelled elbow lines |
+| **Network diagram** | Internet, modem, firewall, core switch and Wi-Fi, with servers, office devices and cameras grouped into VLAN areas, IP addresses and labelled cables |
 
 ### Using a template
 - **As a new board:** **File › New Board from Template…** (Ctrl+Shift+N). Pick a template and a new board is made and opened.

@@ -71,7 +71,7 @@ async function run() {
     await sleep(200);
     const id = (type, extra = '') => ex(`Object.values(B().cards).find(c=>c.type==='${type}'${extra})?.id`);
     check('welcome board renders cards', (await ex('document.querySelectorAll("#cards .card").length')) >= 6);
-    check('tool rail is built', (await ex('document.querySelectorAll("#rail .tool").length')) === 13);
+    check('tool rail is built', (await ex('document.querySelectorAll("#rail .tool").length')) === 14);
 
     // --- adding
     const before = await ex('Object.keys(B().cards).length');

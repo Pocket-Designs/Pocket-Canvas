@@ -8,7 +8,8 @@
  *     arrow: 'end' | 'start' | 'both' | 'none',   (older lines: undefined = 'end', false = 'none')
  *     dash:  'solid' | 'dashed' | 'dotted',
  *     width: 2 | 3 | 5,
- *     shape: 'curve' | 'straight',
+ *     shape: 'curve' | 'straight' | 'elbow'   (elbow: right angles, for flowcharts and network diagrams),
+ *     label?: short text shown in the middle of the line (e.g. "Yes", "VLAN 10", "1 Gbps"),
  *     color }
  */
 'use strict';
@@ -16,14 +17,14 @@
 const LINE_ARROWS = [['none', 'No arrows'], ['end', 'Arrow at the end'], ['start', 'Arrow at the start'], ['both', 'Arrows at both ends']];
 const LINE_DASHES = [['solid', 'Solid'], ['dashed', 'Dashed'], ['dotted', 'Dotted']];
 const LINE_WIDTHS = [[2, 'Thin'], [3, 'Medium'], [5, 'Thick']];
-const LINE_SHAPES = [['curve', 'Curved'], ['straight', 'Straight']];
+const LINE_SHAPES = [['curve', 'Curved'], ['straight', 'Straight'], ['elbow', 'Elbow (right angles)']];
 const DASH_ARRAY = { solid: '', dashed: '10 7', dotted: '0.1 7' };
 const NEAR = 8; // a click that moves less than this is a click, not a drag
 
 const lineArrow = (l) => (l.arrow === false ? 'none' : (typeof l.arrow === 'string' ? l.arrow : 'end'));
 const lineDash = (l) => (DASH_ARRAY[l.dash] !== undefined ? l.dash : 'solid');
 const lineWidth = (l) => ([2, 3, 5].includes(l.width) ? l.width : 2);
-const lineShape = (l) => (l.shape === 'straight' ? 'straight' : 'curve');
+const lineShape = (l) => (l.shape === 'straight' || l.shape === 'elbow' ? l.shape : 'curve');
 const lineCards = (l) => [l.from, l.to].filter(Boolean);
 const otherEnd = (which) => (which === 'from' ? 'to' : 'from');
 
@@ -41,12 +42,32 @@ function lineValid(l, b) {
 
 // ---------- Geometry ----------
 function endCentre(l, which) {
-  if (l[which]) { const el = cardEl(l[which]); if (!el) return null; const r = worldRect(el); return { x: r.x + r.w / 2, y: r.y + r.h / 2, r }; }
+  if (l[which]) {
+    const el = cardEl(l[which]); if (!el) return null;
+    let r = worldRect(el);
+    // Network devices: the card is wider than its icon (to fit the name), so lines meet the icon's sides.
+    const ico = el.classList.contains('net') && el.querySelector('.net-ico');
+    if (ico) { const ir = worldRect(ico); r = { x: ir.x, w: ir.w, y: ir.y, h: r.y + r.h - ir.y }; }
+    return { x: r.x + r.w / 2, y: r.y + r.h / 2, r };
+  }
   const p = l[which + 'Pt']; return p ? { x: p.x, y: p.y } : null;
+}
+// Elbow lines leave and enter cards at the middle of a side: left/right when the cards are more
+// side by side, top/bottom when they're more one above the other.
+function sidePoint(r, toward, horizontal) {
+  const cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+  if (horizontal) return { x: toward.x >= cx ? r.x + r.w : r.x, y: cy };
+  return { x: cx, y: toward.y >= cy ? r.y + r.h : r.y };
 }
 function lineEnds(l) {
   const a = endCentre(l, 'from'), b = endCentre(l, 'to');
   if (!a || !b) return null;
+  if (lineShape(l) === 'elbow') {
+    const horizontal = Math.abs(b.x - a.x) >= Math.abs(b.y - a.y);
+    const pa = a.r ? sidePoint(a.r, b, horizontal) : { x: a.x, y: a.y };
+    const pb = b.r ? sidePoint(b.r, a, horizontal) : { x: b.x, y: b.y };
+    return { a: pa, b: pb, horizontal };
+  }
   const pa = a.r ? edgePoint(a.r, b.x, b.y) : { x: a.x, y: a.y };
   const pb = b.r ? edgePoint(b.r, a.x, a.y) : { x: b.x, y: b.y };
   return { a: pa, b: pb };
@@ -54,10 +75,40 @@ function lineEnds(l) {
 function linePathD(l, ends) {
   const { a, b } = ends;
   if (lineShape(l) === 'straight') return `M${a.x},${a.y} L${b.x},${b.y}`;
+  if (lineShape(l) === 'elbow') {
+    if (Math.abs(a.x - b.x) < 1 || Math.abs(a.y - b.y) < 1) return `M${a.x},${a.y} L${b.x},${b.y}`;
+    if (ends.horizontal !== false) { const mx = (a.x + b.x) / 2; return `M${a.x},${a.y} H${mx} V${b.y} H${b.x}`; }
+    const my = (a.y + b.y) / 2; return `M${a.x},${a.y} V${my} H${b.x} V${b.y}`;
+  }
   // a gentle curve looks more hand-drawn than a ruler line
   const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
   const nx = -(b.y - a.y) * 0.08, ny = (b.x - a.x) * 0.08;
   return `M${a.x},${a.y} Q${mx + nx},${my + ny} ${b.x},${b.y}`;
+}
+
+// The middle of a line, for its label.
+function lineMid(l, ends) {
+  const { a, b } = ends;
+  if (lineShape(l) === 'elbow') {
+    if (ends.horizontal !== false) return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  }
+  if (lineShape(l) === 'straight') return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+  const cx = mx - (b.y - a.y) * 0.08, cy = my + (b.x - a.x) * 0.08;
+  return { x: 0.25 * a.x + 0.5 * cx + 0.25 * b.x, y: 0.25 * a.y + 0.5 * cy + 0.25 * b.y };
+}
+
+// Add, change or remove a line's label.
+async function editLineLabel(l) {
+  const v = await askText({ title: l.label ? 'Line label' : 'Add a label to this line', ok: 'Save',
+    intro: 'Short words shown on the line, such as <b>Yes</b>, <b>No</b>, <b>VLAN 10</b> or <b>1 Gbps</b>. Leave it empty to remove the label.',
+    fields: [{ name: 'label', label: 'Label', value: l.label || '', placeholder: 'e.g. Yes' }] });
+  if (!v) return;
+  checkpoint();
+  const t = String(v.label || '').trim().slice(0, 80);
+  if (t) l.label = t; else delete l.label;
+  drawLinks(); scheduleSave();
 }
 
 // ---------- Drawing ----------
@@ -77,7 +128,7 @@ function drawLinks() {
   if (typeof updateScrollbars === 'function') updateScrollbars();
   const b = B();
   const colours = new Set([null]);
-  let html = '', handles = '';
+  let html = '', handles = '', labels = '';
   for (const l of b.links) {
     const ends = lineEnds(l);
     if (!ends) continue;
@@ -88,6 +139,10 @@ function drawLinks() {
     const style = [colour ? `stroke:${colour}` : '', `stroke-width:${lineWidth(l)}`,
       DASH_ARRAY[lineDash(l)] ? `stroke-dasharray:${DASH_ARRAY[lineDash(l)]}` : ''].filter(Boolean).join(';');
     const sel = l.id === selectedLink;
+    if (l.label) {
+      const m = lineMid(l, ends);
+      labels += `<text class="link-label${sel ? ' selected' : ''}" data-id="${esc(l.id)}" x="${m.x}" y="${m.y}"${colour ? ` style="fill:${colour}"` : ''}>${esc(String(l.label).slice(0, 80))}</text>`;
+    }
     html += `<path class="hit" data-id="${esc(l.id)}" d="${d}"/>` +
       `<path class="link ${sel ? 'selected' : ''} ${lineDash(l)}" data-id="${esc(l.id)}" d="${d}" style="${style}"` +
       `${arrow === 'end' || arrow === 'both' ? ` marker-end="${m}"` : ''}${arrow === 'start' || arrow === 'both' ? ` marker-start="${m}"` : ''}/>`;
@@ -100,7 +155,7 @@ function drawLinks() {
   const markers = [...colours].map((c) =>
     `<marker id="${markerId(c)}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" markerUnits="strokeWidth" orient="auto-start-reverse">` +
     `<path d="M0,0 L10,5 L0,10 z" style="fill:${c || 'var(--link)'}"/></marker>`).join('');
-  linksG.innerHTML = `<defs>${markers}</defs>` + html;
+  linksG.innerHTML = `<defs>${markers}</defs>` + html + labels;
   lineHandles.innerHTML = handles;
   drawGhost();
   updateLineBar();
@@ -290,7 +345,10 @@ function lineMenuItems(l) {
     ...LINE_DASHES.map(([v, label]) => ({ label: tick(lineDash(l) === v, label + ' line'), run: () => setLineProp('dash', v) })),
     '-',
     ...LINE_WIDTHS.map(([v, label]) => ({ label: tick(lineWidth(l) === v, label), run: () => setLineProp('width', v) })),
-    { label: lineShape(l) === 'curve' ? 'Make straight' : 'Make curved', run: () => setLineProp('shape', lineShape(l) === 'curve' ? 'straight' : 'curve') },
+    ...LINE_SHAPES.map(([v, label]) => ({ label: tick(lineShape(l) === v, label), run: () => setLineProp('shape', v) })),
+    '-',
+    { label: l.label ? 'Change label…' : 'Add a label…', hint: 'Double-click', run: () => editLineLabel(l) },
+    ...(l.label ? [{ label: 'Remove label', run: () => { checkpoint(); delete l.label; drawLinks(); scheduleSave(); } }] : []),
     '-',
     { label: 'Reverse direction', run: () => reverseLine(l) },
     ...(lineCards(l).length ? [{ label: 'Detach from cards', run: () => detachLine(l) }] : []),
@@ -309,7 +367,8 @@ const LINE_ICONS = {
   dashed: '<svg viewBox="0 0 28 14"><path d="M3 7h22" stroke-dasharray="6 4"/></svg>',
   dotted: '<svg viewBox="0 0 28 14"><path d="M3 7h22" stroke-dasharray="0.1 4.5" stroke-linecap="round" stroke-width="2.6"/></svg>',
   curve: '<svg viewBox="0 0 28 14"><path d="M3 11Q14 0 25 11"/></svg>',
-  straight: '<svg viewBox="0 0 28 14"><path d="M3 11L25 3"/></svg>'
+  straight: '<svg viewBox="0 0 28 14"><path d="M3 11L25 3"/></svg>',
+  elbow: '<svg viewBox="0 0 28 14"><path d="M3 11H14V3H25" stroke-linejoin="round"/></svg>'
 };
 const lineBar = (() => {
   const bar = document.createElement('div');

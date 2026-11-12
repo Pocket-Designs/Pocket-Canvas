@@ -781,3 +781,53 @@ html.web-signing-in #app { visibility: hidden; }
 #web-signin .ws-switch { border: none; background: none; color: var(--accent); font: inherit; font-size: 13px; cursor: pointer; }
 #web-signin .ws-error { color: #c0392b; font-size: 13px; }
 #web-signin .ws-foot { margin: 6px 0 0; text-align: center; color: var(--muted); font-size: 11px; }
+
+/* ---------- Line labels ---------- */
+#links text.link-label { font: 600 13px/1 var(--font, system-ui, sans-serif); fill: var(--text); text-anchor: middle; dominant-baseline: central;
+  paint-order: stroke; stroke: var(--bg); stroke-width: 6px; stroke-linejoin: round; pointer-events: all; cursor: pointer; }
+#links text.link-label.selected { fill: var(--select); }
+
+/* ---------- Shapes: flowcharts and network diagrams ---------- */
+.card.shape { background: transparent; box-shadow: none; min-width: 0; }
+.card.shape::before { display: none; }
+.card.shape.selected { box-shadow: none; outline: 2px solid var(--select); outline-offset: 3px; border-radius: 6px; }
+.export-mode .card.shape.selected { outline: none; }
+.card.shape.flow { --sh-stroke: var(--c, #5f6b7a); --sh-fill: color-mix(in srgb, var(--c, #5f6b7a) 14%, var(--card)); }
+.card.shape .sh-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.card.shape .sh-svg * { fill: var(--sh-fill); stroke: var(--sh-stroke); stroke-width: 2px; }
+.card.shape .sh-svg [fill="none"] { fill: none; }
+.card.shape .sh-box { position: absolute; inset: 0; background: var(--sh-fill); border: 2px solid var(--sh-stroke); border-radius: 4px; }
+.card.shape .sh-box.pill { border-radius: 999px; }
+.card.shape .sh-box.round { border-radius: 50%; }
+.card.shape .sh-box.area { border-style: dashed; border-radius: 12px; background: color-mix(in srgb, var(--c, #8a7f70) 6%, transparent); }
+.card.shape .sh-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 8px 10px; overflow: hidden; }
+.card.shape .sh-label .editable { width: 100%; white-space: pre-wrap; word-break: break-word; font-size: 14px; line-height: 1.3; min-height: 1.3em; }
+.card.shape .sh-label.area-title { align-items: flex-start; justify-content: flex-start; padding: 8px 14px; pointer-events: none; }
+.card.shape .sh-label.area-title .editable { pointer-events: auto; width: auto; font-weight: 650; color: var(--sh-stroke); text-align: left; }
+.card.shape.net { display: flex; flex-direction: column; align-items: center; padding: 6px 4px 8px; gap: 2px; }
+.card.shape.net .net-ico { width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; border-radius: 16px; color: var(--c, #5f6b7a);
+  background: color-mix(in srgb, var(--c, #5f6b7a) 13%, var(--card)); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--c, #5f6b7a) 35%, transparent); }
+.card.shape.net .net-label, .card.shape.net .net-sub { width: 100%; text-align: center; }
+.card.shape.net .net-label .editable { font-weight: 650; font-size: 13.5px; white-space: pre-wrap; word-break: break-word; }
+.card.shape.net .net-sub .editable { font-size: 12px; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-word; }
+.card.shape.net .net-sub .editable:empty:not(:focus) { opacity: 0; }
+.card.shape.net:hover .net-sub .editable:empty, .card.shape.net.selected .net-sub .editable:empty { opacity: 1; }
+.export-mode .card.shape.net .net-sub .editable:empty { display: none; }
+.sh-plus { position: absolute; z-index: 4; width: 20px; height: 20px; border-radius: 50%; border: none; padding: 0; display: none; align-items: center; justify-content: center;
+  background: var(--select); color: #fff; font: 700 14px/1 system-ui, sans-serif; cursor: pointer; box-shadow: var(--card-shadow); }
+.card.shape.selected:not(.dragging) > .sh-plus { display: inline-flex; }
+.sh-plus.top { left: calc(50% - 10px); top: -30px; } .sh-plus.bottom { left: calc(50% - 10px); bottom: -30px; }
+.sh-plus.left { top: calc(50% - 10px); left: -30px; } .sh-plus.right { top: calc(50% - 10px); right: -30px; }
+.sh-plus:hover { transform: scale(1.15); }
+.export-mode .sh-plus { display: none !important; }
+.card.shape > .card-del { top: -10px; right: -10px; }
+/* the picker */
+.shape-picker .sp-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+.shape-picker .sp-tab { flex: 1; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); font: inherit; font-weight: 600; cursor: pointer; color: var(--text); }
+.shape-picker .sp-tab.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.shape-picker .sp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; }
+.shape-picker .sp-item { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 6px 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); cursor: pointer; font: inherit; color: var(--muted); }
+.shape-picker .sp-item.flow { color: var(--text); }
+.shape-picker .sp-item span { font-size: 12px; color: var(--text); text-align: center; line-height: 1.25; }
+.shape-picker .sp-item:hover { border-color: var(--accent); background: var(--panel-2); }
+.shape-picker .sp-tip { margin: 12px 0 0; }

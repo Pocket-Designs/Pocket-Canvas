@@ -13,7 +13,7 @@
   const pts = new Map(); // touch pointers on the board
   let mode = null, start = null, longTimer = null, ourMenuAt = 0;
 
-  const onEmpty = (t) => !t.closest('.card, path.hit, path.link, circle.lh, #line-bar, #sketch-bar, #format-bar, #empty-hint button');
+  const onEmpty = (t) => !t.closest('.card, path.hit, path.link, text.link-label, circle.lh, #line-bar, #sketch-bar, #format-bar, #empty-hint button');
   const mid = () => { const [a, b] = [...pts.values()]; return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, d: Math.hypot(a.x - b.x, a.y - b.y) || 1 }; };
   const cancelLong = () => { clearTimeout(longTimer); longTimer = null; };
 

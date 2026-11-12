@@ -14,7 +14,7 @@ Runs on Windows, Linux, macOS, Android, iPhone and iPad, and in any web browser 
 
 The full list is in [FEATURES.md](FEATURES.md). Highlights:
 
-**Cards:** note (rich text) · to-do list · link with automatic preview (picture, title, description) · picture · audio & video with Play / Stop · file · table · freehand sketch · board (nested, as deep as you like) · column · heading · colour swatch
+**Cards:** note (rich text) · to-do list · link with automatic preview (picture, title, description) · picture · audio & video with Play / Stop · file · table · freehand sketch · **shapes for flowcharts and network diagrams** · board (nested, as deep as you like) · column · heading · colour swatch
 
 **New in 1.5**
 - **Share boards and edit them together, live**, through your own **Pocket-Canvas Server** (see [server/README.md](server/README.md)), which also syncs your devices

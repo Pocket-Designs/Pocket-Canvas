@@ -1,6 +1,6 @@
 # Pocket-Canvas — Feature List
 
-Version 1.5.2 · © 2026 Pocket-Designs
+Version 1.5.4 · © 2026 Pocket-Designs
 
 Pocket-Canvas is a desktop, Android, iPhone and iPad app for organising ideas visually. Put notes, pictures, links, to-do lists, tables, sketches, audio, video and files on an endless board, then group, connect and nest them however you think. Start from a template, keep your boards in step across all your devices, share boards with other people and edit them together, and save things straight from your web browser.
 
@@ -28,6 +28,7 @@ Pocket-Canvas is a desktop, Android, iPhone and iPad app for organising ideas vi
 | **Audio / video** | MP3, WAV, OGG, M4A, AAC, FLAC, Opus, MP4, M4V, WebM, OGV, MOV and MKV play right on the card with **Play/Pause**, **Stop** (rewinds to the start), a position slider, time and mute. Videos show in the card. Playing one pauses any other, and playback carries on while you work on the board. |
 | **Table** | Rows and columns of text with an optional heading row. **Tab** / **Shift+Tab** move between cells and **Enter** moves down; new rows are added as you go. **+ Row** / **+ Column** and **− Row** / **− Column** buttons: the minus buttons delete the row or column of the cell you last clicked (or the last one), and shade it red first so you can see what will go. Right-click a cell to insert or delete rows and columns anywhere. **Paste tables from other programs**: cells copied from Excel, Google Sheets, LibreOffice, Word or a web page (or tab-separated text) become a table card, keeping fill and text colours, bold, italic and underline, with merged cells spread out. Pasting while typing in a cell fills the table from there, adding rows and columns as needed. **Photos in cells**: drop, paste or pick a photo into any cell (it sits above the cell's text); open, replace, save or remove it from the right-click menu. **Move rows and columns** by dragging their grips, with Alt+arrow keys while typing, or from the right-click menu. **Colours and text styles** for a cell, a row, a column or the whole table: fill colours (20 ready-made or any colour), text colours (16 or any), **bold**, *italic*, underline and strikethrough. Whatever you apply last wins where rows and columns cross; styles move with their rows and columns. |
 | **Sketch** | Freehand drawing. Double-click to draw with a **pen**, **straight lines**, **arrows**, **rectangles** and **ellipses** (Shift for squares, circles and 45° angles; optional light **fill**), 9 colours and 4 sizes, an eraser, *Undo line* and *Clear*. **Pressure-sensitive**: with a pen that senses pressure (Wacom, Surface Pen, S Pen, Apple Pencil), lines get thicker as you press harder. Kept as shapes (not pixels), so they stay sharp at any zoom and size. Works with a mouse, touchpad, touch screen or pen. |
+| **Shape** | **Flowcharts and network diagrams.** The **Shapes** tool opens a picker with two tabs. **Flowchart:** process, start/end, decision, input/output, document, database, sub-process, preparation, manual step, delay, connector and **Area / group** (a dashed box that stays behind other cards, for VLANs, rooms or sites). **Network:** 19 devices (internet, modem/ONT, router, firewall, switch, wireless access point, server, virtual machine, storage/NAS, computer, laptop, phone, tablet, desk phone, printer, camera, sensor/IoT, person, site/building), each with a name and a line for an **IP address or note**. Select a flowchart shape and click a **+** on any side to add the next step, already joined. Flowchart shapes resize in both directions; right-click › **Change shape…** keeps the words and lines. Shapes appear in search and Markdown export. |
 | **Board** | A board inside your board, with its own **icon**, colour and card count. Open it to start a fresh canvas inside. Boards can be nested as deep as you like. Right-click › **Change icon…** to choose from 42 icons and 51 background colours (17 colours, each light, middle and deep), type any colour code or pick one, or use your own picture. |
 | **Column** | A neat vertical stack of cards. Drag cards in, reorder them inside, or drag them back out onto the board. |
 | **Heading** | Large title text for labelling areas of a board. Change its font, size, colour, bold, italic, underline or strikethrough from the formatting bar. |
@@ -36,7 +37,7 @@ Pocket-Canvas is a desktop, Android, iPhone and iPad app for organising ideas vi
 ## Templates
 
 - Templates always load at the **top-left corner**. On a board that already has cards, they go at the left edge below what's there.
-- **Six ready-made templates:** Mood board, Storyboard, Project plan, Mind map, Weekly planner and Brainstorm. Each has a preview in the gallery.
+- **Eight ready-made templates:** Mood board, Storyboard, Project plan, Mind map, Weekly planner, Brainstorm, **Flowchart** and **Network diagram**. Each has a preview in the gallery.
 - **New board from a template** (Ctrl+Shift+N), or **insert a template** onto the board you're on (right-click an empty spot, or the *Start from a template* button on an empty board)
 - **Save your own:** turn any board, including the boards inside it, into a template (File › Save Board as Template…, or right-click a board card). Give it a name and description; it appears under **My templates**.
 - Rename or delete your own templates from the gallery
@@ -119,9 +120,10 @@ Pocket-Canvas is a desktop, Android, iPhone and iPad app for organising ideas vi
 - Each end can be **attached to a card** or **free on the board**, so lines and arrows can be used on their own as pointers, dividers or underlines
 - Attached ends follow their card as it moves. Select a line to see a handle on each end: drag a handle onto a card to attach it, or anywhere else to free it. Drag a free line to move it.
 - **Arrows:** none, at the end, at the start, or at both ends
-- **Style:** solid, dashed or dotted; thin, medium or thick; curved or straight; any of 11 colours
+- **Style:** solid, dashed or dotted; thin, medium or thick; curved, straight or **elbow** (right angles, for flowcharts); any of 11 colours
 - A **line style bar** appears while drawing or with a line selected; the style you pick is used for the next new line too
-- Right-click a line for the same options, plus **Reverse direction**, **Detach from cards** and **Delete**
+- **Labels on lines:** double-click a line to label it (Yes / No, VLAN 10, 1 Gbps); the label sits in the middle of the line
+- Right-click a line for the same options, plus **Add/Change/Remove label**, **Reverse direction**, **Detach from cards** and **Delete**
 
 ## Moving around
 
