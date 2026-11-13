@@ -7,7 +7,7 @@ This guide is for anyone using the app. You don't need any technical knowledge.
 ### What's new
 
 **Version 1.5**
-- **Flowcharts and network diagrams** with the new **Shapes** tool: 12 flowchart shapes and 19 network devices (router, switch, firewall, server, Wi-Fi and more), **+** buttons to add the next step already joined, right-angled **elbow lines**, **labels on lines**, and two new templates ([section 4](#shapes-flowcharts-and-network-diagrams))
+- **Flowcharts and network diagrams** with the new **Shapes** tool: 12 flowchart shapes and 19 network devices (router, switch, firewall, server, Wi-Fi and more), **+** buttons that let you pick the next shape and add it already joined, right-angled **elbow lines**, **labels on lines**, and two new templates ([section 4](#shapes-flowcharts-and-network-diagrams))
 - **Use Pocket-Canvas in a web browser**, with nothing installed, from your own Pocket-Canvas Server ([section 28](#28-using-pocket-canvas-in-a-web-browser))
 - **Portable versions** that run without installing, for Windows, Mac and Linux ([section 1](#portable-versions-no-installing))
 - **Share boards with other people** and edit them together, live, through your own **Pocket-Canvas Server**, which also syncs your devices without a sync folder ([section 26](#26-sharing-boards-and-your-own-server))
@@ -46,7 +46,7 @@ This guide is for anyone using the app. You don't need any technical knowledge.
 **Version 1.1**
 - Sync between computers, templates, comments, link previews, tables, audio and video, sketches, PDF/picture export and the browser extension
 
-Version 1.5.4 · © 2026 Pocket-Designs · pocket-designs@proton.me
+Version 1.5.5 · © 2026 Pocket-Designs · pocket-designs@proton.me
 
 ---
 
@@ -310,7 +310,7 @@ Use shapes to draw a process step by step, or a map of your network.
   - **Flowchart:** process, start/end, decision (diamond), input/output, document, database, sub-process, preparation, manual step, delay, connector (circle) and **Area / group**.
   - **Network:** internet, modem/ONT, router, firewall, switch, wireless access point, server, virtual machine, storage/NAS, computer, laptop, phone, tablet, desk phone, printer, camera (CCTV), sensor/IoT, person and site/building.
 - Type straight away: flowchart shapes have their words inside; network devices have a **name**, and a second line underneath for an **IP address or a note**.
-- **Add the next step:** select a flowchart shape and click a **+** on any side. A new shape appears there, already joined with an arrow, ready for you to type. After a decision you get a normal step.
+- **Add the next shape:** select a shape or device and click a **+** on any side. Pick which shape or device comes next (the usual choice is highlighted; press **Enter** for it). It appears on that side, already joined, ready for you to type. Flowchart shapes are joined with an elbow arrow, network devices with a plain cable. **Shift+click** the **+** to skip the question and add the usual next shape: a normal step after a decision or start/end, otherwise the same again.
 - **Resize** flowchart shapes from the corner, in both directions. Hold **Shift** to keep a circle or diamond even.
 - **Area / group** draws a dashed box with a title, and always sits behind other cards. Use it for a VLAN, a room, an office or a site, then put devices inside it.
 - **Change a shape** without losing its words or lines: right-click › **Change shape…**.
@@ -484,7 +484,8 @@ Whatever you pick is also used for your next new line. The bar also has **Delete
 ### Moving lines and their ends
 - **Ends on a card** follow the card when you move it.
 - Click a line to select it. A round **handle** appears on each end.
-  - Drag a handle onto a card to attach it (the card lights up).
+  - Drag a handle onto a card or shape to attach it (the card lights up). This is how you move a line to a different shape.
+  - On a network device, the empty space either side of the name doesn't count as the device, and inside an **Area** only the title and dashed edge do, so lines that pass there can still be clicked.
   - Drag a handle anywhere else to free that end.
 - Drag the middle of a line to move it. Its free ends move; ends on cards stay put.
 

@@ -831,3 +831,17 @@ html.web-signing-in #app { visibility: hidden; }
 .shape-picker .sp-item span { font-size: 12px; color: var(--text); text-align: center; line-height: 1.25; }
 .shape-picker .sp-item:hover { border-color: var(--accent); background: var(--panel-2); }
 .shape-picker .sp-tip { margin: 12px 0 0; }
+
+.shape-picker .sp-item.suggest { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+
+/* Line end handles must sit above every card (cards get z-index 1, 2, 3… in board order). */
+#cards { z-index: 1; }
+#line-handles { z-index: 3; }
+/* See-through parts of shapes let clicks reach lines underneath: a network device is only
+   clickable on its icon and words, an area only on its title and dashed edge. */
+.card.shape.net { pointer-events: none; }
+.card.shape.net > .net-ico, .card.shape.net > .net-label, .card.shape.net > .net-sub,
+.card.shape > .sh-plus, .card.shape > .resize, .card.shape > .card-del, .card.shape > .cmt-badge { pointer-events: auto; }
+.card.shape.k-area { pointer-events: none; }
+.card.shape.k-area > .sh-box.area { pointer-events: auto;
+  clip-path: polygon(evenodd, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, 10px 10px, 10px calc(100% - 10px), calc(100% - 10px) calc(100% - 10px), calc(100% - 10px) 10px, 10px 10px); }

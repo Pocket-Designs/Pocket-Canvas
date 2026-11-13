@@ -90,7 +90,7 @@ function buildShapeHtml(c, el) {
 }
 // the four "+" buttons around a selected shape: add a connected shape that way
 const shapePlus = () => ['top', 'right', 'bottom', 'left'].map((d) =>
-  `<button class="sh-plus ${d}" data-act="shape-next" data-dir="${d}" title="Add a joined shape here" tabindex="-1">+</button>`).join('');
+  `<button class="sh-plus ${d}" data-act="shape-next" data-dir="${d}" title="Add a joined shape here (Shift+click: the usual next shape)" tabindex="-1">+</button>`).join('');
 
 // ---------- adding shapes ----------
 function addShape(kind, pos) {
@@ -101,13 +101,21 @@ function addShape(kind, pos) {
 }
 
 // "+" on a shape: a new shape of the same kind (after a decision, a process) beside it, joined by a line.
-function addNextShape(c, dir) {
+// The usual next shape: a step after a decision or start/end, otherwise the same again.
+function nextShapeKind(c) {
+  const k = shapeKind(c);
+  return k === 'decision' || k === 'terminal' || k === 'area' ? 'process' : k;
+}
+
+// Clicking + asks which shape comes next (same tab as this shape); `kind` skips the question.
+function addNextShape(c, dir, kind) {
+  if (!kind) { openShapePicker(null, { next: { c, dir } }); return; }
   const el = cardEl(c.id); if (!el) return;
   checkpoint();
   const b = B();
-  const kind = c.kind === 'decision' || c.kind === 'terminal' ? 'process' : shapeKind(c);
   const d = shapeDefaults(kind);
-  if (isNetKind(kind)) d.color = c.color || d.color;
+  if (isNetKind(kind) && kind === shapeKind(c) && c.color) d.color = c.color;
+  const cable = isNetKind(kind) || isNetKind(shapeKind(c));
   const r = { x: c.x, y: c.y, w: el.offsetWidth, h: el.offsetHeight };
   const nh = isNetKind(kind) ? r.h : d.h, nw = d.w;
   const gap = 70;
@@ -117,7 +125,7 @@ function addNextShape(c, dir) {
   }[dir];
   const n = makeCard(b, 'shape', at.x, at.y, d);
   const ld = lineDefaults();
-  b.links.push({ id: uid(), from: c.id, to: n.id, arrow: isNetKind(kind) ? 'none' : ld.arrow, dash: ld.dash, width: ld.width, shape: isNetKind(kind) ? 'straight' : 'elbow' });
+  b.links.push({ id: uid(), from: c.id, to: n.id, arrow: cable ? 'none' : ld.arrow, dash: ld.dash, width: ld.width, shape: cable ? 'straight' : 'elbow' });
   renderBoard();
   selectOnly(n.id);
   scheduleSave();
@@ -145,13 +153,16 @@ let shapePickTab = 'flow';
 function openShapePicker(pos, opts = {}) {
   const body = document.createElement('div');
   body.className = 'shape-picker';
+  const from = opts.next ? opts.next.c : opts.change ? B().cards[opts.change[0]] : null;
+  if (from) shapePickTab = isNetKind(shapeKind(from)) ? 'net' : 'flow';
+  const suggest = opts.next ? nextShapeKind(opts.next.c) : null;
   const render = () => {
     const list = shapePickTab === 'flow' ? FLOW_ORDER.map((k) => [k, FLOW_SHAPES[k].name, FLOW_SHAPES[k].hint]) : NET_ORDER.map((k) => [k, NET_DEVICES[k].name, '']);
     body.innerHTML = `<div class="sp-tabs" role="tablist">
         <button class="sp-tab ${shapePickTab === 'flow' ? 'on' : ''}" data-tab="flow">Flowchart</button>
         <button class="sp-tab ${shapePickTab === 'net' ? 'on' : ''}" data-tab="net">Network</button></div>
       <div class="sp-grid">${list.map(([k, name, hint]) =>
-        `<button class="sp-item ${shapePickTab}" data-kind="${k}" title="${esc(hint || name)}" ${isNetKind(k) ? `style="color:${NET_DEVICES[k].color}"` : ''}>${shapeIconSvg(k, 40)}<span>${esc(name)}</span></button>`).join('')}</div>
+        `<button class="sp-item ${shapePickTab}${k === suggest ? ' suggest' : ''}" data-kind="${k}" title="${esc(hint || name)}" ${isNetKind(k) ? `style="color:${NET_DEVICES[k].color}"` : ''}>${shapeIconSvg(k, 40)}<span>${esc(name)}</span></button>`).join('')}</div>
       <p class="muted small sp-tip">${shapePickTab === 'flow'
         ? 'Tip: select a shape and click a <b>+</b> beside it to add the next step, already joined. Right-click a line for elbow lines and labels.'
         : 'Tip: type the device’s name, and an IP address or note underneath. Use <b>Area / group</b> (Flowchart tab) for VLANs and rooms.'}</p>`;
@@ -159,18 +170,23 @@ function openShapePicker(pos, opts = {}) {
     body.querySelectorAll('.sp-item').forEach((it) => it.onclick = () => {
       modal.close();
       if (opts.change) changeShape(opts.change, it.dataset.kind);
+      else if (opts.next) addNextShape(opts.next.c, opts.next.dir, it.dataset.kind);
       else addShape(it.dataset.kind, pos);
     });
   };
   render();
-  const modal = openModal({ title: opts.change ? 'Change shape' : 'Add a shape', body, actions: [{ label: 'Cancel' }], wide: true });
+  const actions = [{ label: 'Cancel' }];
+  if (suggest) actions.push({ label: `Add ${shapeName(suggest)}`, primary: true, run: (close) => { close(null); addNextShape(opts.next.c, opts.next.dir, suggest); } });
+  const title = opts.change ? 'Change shape' : opts.next ? 'Add the next shape' : 'Add a shape';
+  const modal = openModal({ title, body, actions, wide: true });
+  if (suggest) { const b = modal.el.querySelector('.primary-btn'); if (b) b.focus(); }
 }
 
 // ---------- right-click menu items for shapes ----------
 function shapeMenuItems(c, ids) {
   const items = [{ label: 'Change shape…', run: () => openShapePicker(null, { change: ids }) }];
-  if (!isNetKind(shapeKind(c)) && shapeKind(c) !== 'area') {
-    items.push({ label: 'Add the next step', run: () => addNextShape(c, 'bottom') });
+  if (shapeKind(c) !== 'area') {
+    items.push({ label: 'Add the next shape…', run: () => addNextShape(c, isNetKind(shapeKind(c)) ? 'right' : 'bottom') });
   }
   return items;
 }

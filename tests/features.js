@@ -661,6 +661,9 @@ function request(method, p, { body, token, origin } = {}) {
     check('shapes: a selected shape shows + buttons on each side', await ex(`[...document.querySelectorAll('.card[data-id="${sh_dec}"] > .sh-plus')].filter(b => getComputedStyle(b).display !== 'none').length === 4`));
     const sh_nLinks = await ex(`B().links.length`);
     await click(await centre(`.card[data-id="${sh_dec}"] > .sh-plus.bottom`)); await sleep(300);
+    check('shapes: + asks which shape comes next, suggesting a step after a decision', await ex(`document.querySelector('.modal h2').textContent === 'Add the next shape' && document.querySelector('.sp-tab.on').dataset.tab === 'flow' && document.querySelector('.sp-item.suggest').dataset.kind === 'process' && document.activeElement.textContent === 'Add Process'`));
+    await shot('shape-next-picker.png');
+    await ex(`document.querySelector('.sp-item[data-kind="process"]').click()`); await sleep(300);
     check('shapes: + adds the next step below, already joined', await ex(`B().links.length === ${sh_nLinks + 1} && (() => { const l = B().links[B().links.length - 1]; const n = B().cards[l.to]; return l.from === '${sh_dec}' && n.kind === 'process' && n.y > B().cards['${sh_dec}'].y && l.shape === 'elbow'; })()`));
     check('shapes: …and you can type its words straight away', await ex(`document.activeElement && document.activeElement.dataset.field === 'label'`));
     await ex(`document.execCommand('insertText', false, 'Restart it'); document.activeElement.blur()`); await sleep(150);
@@ -672,13 +675,43 @@ function request(method, p, { body, token, origin } = {}) {
     await ex(`(() => { const i = document.querySelector('.modal input[name="label"]'); i.value = 'No'; [...document.querySelectorAll('.modal-actions button')].find(b => b.textContent === 'Save').click(); })()`); await sleep(300);
     check('lines: the label is shown in the middle of the line', await ex(`B().links.find(l => l.id === '${sh_lid}').label === 'No' && document.querySelector('#links text.link-label[data-id="${sh_lid}"]').textContent === 'No'`));
     check('lines: the line menu offers Elbow lines and labels', await ex(`(() => { selected.clear(); selectedLink = '${sh_lid}'; refreshSelection(); const p = document.querySelector('#links path.hit[data-id="${sh_lid}"]'); const r = p.getBoundingClientRect(); p.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 })); const t = [...document.querySelectorAll('#ctx button')].map(b => b.textContent); hideMenu(); return t.some(x => x.includes('Elbow')) && t.some(x => x.includes('Change label')); })()`));
+    await ex(`selectOnly('${sh_rtr}')`); await sleep(150);
+    const nl2 = await ex(`B().links.length`);
+    await click(await centre(`.card[data-id="${sh_rtr}"] > .sh-plus.right`)); await sleep(300);
+    check('shapes: + on a network device opens the Network tab', await ex(`document.querySelector('.sp-tab.on').dataset.tab === 'net' && document.querySelector('.sp-item.suggest').dataset.kind === 'router'`));
+    await ex(`document.querySelector('.sp-item[data-kind="switch"]').click()`); await sleep(300);
+    check('shapes: …and adds the device you pick, joined with a plain cable', await ex(`(() => { const l = B().links[B().links.length - 1]; const n = B().cards[l.to]; return B().links.length === ${nl2} + 1 && l.from === '${sh_rtr}' && n.kind === 'switch' && n.color === NET_DEVICES.switch.color && l.shape === 'straight' && l.arrow === 'none' && n.x > B().cards['${sh_rtr}'].x; })()`));
+    await ex(`document.activeElement && document.activeElement.blur && document.activeElement.blur(); undo(); true`); await sleep(300);
+    check('shapes: undo takes the new device and its cable away', await ex(`B().links.length === ${nl2} && !Object.values(B().cards).some(c => c.kind === 'switch')`));
+    await ex(`selectOnly('${sh_rtr}')`); await sleep(100);
+    await mouse('mouseMove', ...(await centre(`.card[data-id="${sh_rtr}"] > .sh-plus.bottom`)));
+    await ex(`document.querySelector('.card[data-id="${sh_rtr}"] > .sh-plus.bottom').dispatchEvent(new MouseEvent('click', { bubbles: true, shiftKey: true }))`); await sleep(300);
+    check('shapes: Shift+click on + adds the usual next shape straight away', await ex(`!document.querySelector('.shape-picker') && (() => { const l = B().links[B().links.length - 1]; return l.from === '${sh_rtr}' && B().cards[l.to].kind === 'router'; })()`));
+    await ex(`document.activeElement && document.activeElement.blur && document.activeElement.blur(); undo(); true`); await sleep(300);
+    // moving a line's end onto a different shape, with lots of cards on the board
+    await ex(`(() => { for (let i = 0; i < 10; i++) makeCard(B(), 'shape', 1300 + (i % 5) * 160, 700 + Math.floor(i / 5) * 200, shapeDefaults(i % 2 ? 'switch' : 'process')); renderBoard(); return true; })()`); await sleep(200);
+    const mv = await ex(`(() => { const cs = Object.values(B().cards).filter(c => c.x >= 1300 && c.y >= 700); const a = cs[0], b2 = cs[1], c3 = cs[7]; const l = { id: 'mvl', from: a.id, to: b2.id, arrow: 'end', shape: 'elbow' }; B().links.push(l); drawLinks(); return [a.id, b2.id, c3.id]; })()`);
+    await ex(`(() => { const r = document.querySelector('.card[data-id="${mv[2]}"]').getBoundingClientRect(); const v = B().view; v.x -= r.left - 800; v.y -= r.top - 500; applyView(); selected.clear(); selectedLink = 'mvl'; refreshSelection(); drawLinks(); return true; })()`); await sleep(200);
+    const hp = await ex(`(() => { const h = document.querySelector('#line-handles circle[data-id="mvl"][data-end="to"]').getBoundingClientRect(); return [Math.round(h.left + h.width / 2), Math.round(h.top + h.height / 2)]; })()`);
+    check('lines: line end handles stay on top of every card', await ex(`(() => { const e = document.elementFromPoint(${hp[0]}, ${hp[1]}); return !!e && e.matches('#line-handles circle'); })()`));
+    const tp = await centre(`.card[data-id="${mv[2]}"] .net-ico, .card[data-id="${mv[2]}"] .sh-label`);
+    await mouse('mouseMove', ...hp); await mouse('mouseDown', ...hp);
+    for (let k = 1; k <= 6; k++) await mouse('mouseMove', Math.round(hp[0] + (tp[0] - hp[0]) * k / 6), Math.round(hp[1] + (tp[1] - hp[1]) * k / 6));
+    await mouse('mouseUp', ...tp); await sleep(250);
+    check('lines: dragging a line end onto another shape moves the line there', await ex(`B().links.find(l => l.id === 'mvl').to === '${mv[2]}'`));
+    // a line passing over an area can still be clicked
+    await ex(`(() => { const a = addShape('area', { x: 1500, y: 1500 }); document.activeElement.blur(); B().links.push({ id: 'arl', fromPt: { x: 1200, y: 1500 }, toPt: { x: 1800, y: 1500 }, shape: 'straight' }); drawLinks(); const r = document.querySelector('.card[data-id="' + a.id + '"]').getBoundingClientRect(); const v = B().view; v.x -= r.left - 300; v.y -= r.top - 300; applyView(); clearSelection(); drawLinks(); return true; })()`); await sleep(200);
+    const ap = await ex(`(() => { const p = document.querySelector('#links path.hit[data-id="arl"]').getBoundingClientRect(); return [Math.round(p.left + p.width / 2), Math.round(p.top + p.height / 2)]; })()`);
+    await click(ap); await sleep(150);
+    check('lines: a line crossing an area can still be selected', await ex(`selectedLink === 'arl'`));
+    await ex(`(() => { B().links = B().links.filter(l => l.id !== 'arl'); drawLinks(); fitContent(); return true; })()`); await sleep(150);
     // connect the router to the decision with a labelled straight line, change shapes
     await ex(`(() => { B().links.push({ id: 'netl1', from: '${sh_rtr}', to: '${sh_dec}', arrow: 'none', shape: 'straight', label: 'VLAN 10' }); drawLinks(); })()`); await sleep(100);
     check('lines: network cables can carry labels like a VLAN', await ex(`document.querySelector('#links text.link-label[data-id="netl1"]').textContent === 'VLAN 10'`));
     await ex(`changeShape(['${sh_dec}'], 'process')`); await sleep(200);
     check('shapes: a shape can be changed to another kind, keeping its words and lines', await ex(`B().cards['${sh_dec}'].kind === 'process' && B().cards['${sh_dec}'].label === 'Working?' && B().links.some(l => l.from === '${sh_dec}' || l.to === '${sh_dec}') && !!document.querySelector('.card[data-id="${sh_dec}"] .sh-box.rect')`));
     await ex(`addShape('area', { x: 300, y: 300 }); document.activeElement && document.activeElement.blur && document.activeElement.blur()`); await sleep(250);
-    check('shapes: an Area (for a VLAN or a room) goes behind everything else', await ex(`(() => { const a = Object.values(B().cards).find(c => c.kind === 'area'); return B().order[0] === a.id && !!document.querySelector('.card[data-id="' + a.id + '"] .sh-box.area'); })()`));
+    check('shapes: an Area (for a VLAN or a room) goes behind everything else', await ex(`(() => { const as = Object.values(B().cards).filter(c => c.kind === 'area'); const a = as[as.length - 1]; return B().order[0] === a.id && !!document.querySelector('.card[data-id="' + a.id + '"] .sh-box.area'); })()`));
     check('shapes: shapes show in search and Markdown', await ex(`cardText(B().cards['${sh_rtr}']).includes('192.168.1.1') && boardToMd(cur, 1).includes('[Router] Main router (192.168.1.1)')`));
     await shot('shapes-board.png');
     // templates

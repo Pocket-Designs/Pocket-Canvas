@@ -8,7 +8,7 @@
 // ======================================================================
 async function cardAction(act, c, el, e) {
   switch (act) {
-    case 'shape-next': addNextShape(c, (el && el.dataset.dir) || 'right'); return;
+    case 'shape-next': addNextShape(c, (el && el.dataset.dir) || 'right', e && e.shiftKey ? nextShapeKind(c) : undefined); return;
     case 'add-row': {
       checkpoint();
       tblInsertRow(c, c.rows.length);

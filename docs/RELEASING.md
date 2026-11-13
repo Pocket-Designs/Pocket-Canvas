@@ -43,7 +43,7 @@ The workflow lives in `.github/workflows/build.yml` and runs in two stages:
    - **ios** makes the iPhone and iPad app on a Mac (see [IOS.md](IOS.md)).
    - **safari** makes the Safari web clipper app on a Mac (see [SAFARI.md](SAFARI.md)).
 
-The workflow starts in one of two ways. You can press **Run workflow** to make a test build, or you can push a tag such as `v1.5.0` to make a public release.
+The workflow starts in one of two ways. You can press **Run workflow** to make a test build, or you can push a tag such as `v1.5.5` to make a public release.
 
 ## 1.1 One-time set-up: put the project on GitHub
 
@@ -57,12 +57,12 @@ You only need to do this once.
    5. Leave **Add a README**, **.gitignore** and **licence** unticked, because the project already has them.
    6. Click **Create repository**.
 
-2. **Push the code.** Unzip `Pocket-Canvas-1.5.0-source.zip`, open a terminal in the `pocket-canvas` folder and run:
+2. **Push the code.** Unzip `Pocket-Canvas-1.5.5-source.zip`, open a terminal in the `pocket-canvas` folder and run:
 
    ```bash
    git init
    git add .
-   git commit -m "Pocket-Canvas 1.5.0"
+   git commit -m "Pocket-Canvas 1.5.5"
    git branch -M main
    git remote add origin https://github.com/Pocket-Designs/Pocket-Canvas.git
    git push -u origin main
@@ -94,14 +94,14 @@ Use a test build whenever you want installers to try out without publishing anyt
 
    | Artifact | Contains |
    |---|---|
-   | `pocket-canvas-windows-latest` | `Pocket-Canvas Setup 1.5.0.exe` (installer) and `Pocket-Canvas-1.5.0-portable.exe` (runs without installing) |
-   | `pocket-canvas-macos-26` (or `-macos-15-intel`) | `Pocket-Canvas-1.5.0-mac-arm64.dmg` for Macs with Apple chips (M1 and later), and `Pocket-Canvas-1.5.0-mac-x64.dmg` for older Intel Macs, plus a `.zip` of each that runs without installing |
-   | `pocket-canvas-ubuntu-24.04` | `Pocket-Canvas-1.5.0.AppImage`, `pocket-canvas_1.5.0_amd64.deb` |
-   | `pocket-canvas-browser-extension` | `pocket-canvas-web-clipper-1.5.0.zip` |
-   | `pocket-canvas-server` | `Pocket-Canvas-Server-1.5.0.zip`: the server with the browser version built in (see [server/README.md](../server/README.md)) |
-   | `pocket-canvas-android` | `Pocket-Canvas-1.5.0-android.apk` (see [ANDROID.md](ANDROID.md)) |
-   | `pocket-canvas-ios` | `Pocket-Canvas-1.5.0-ios-unsigned.ipa` and `…-ios-simulator.zip` (see [IOS.md](IOS.md)) |
-   | `pocket-canvas-safari-extension` | `Pocket-Canvas-Web-Clipper-1.5.0-safari.zip` and the converter's report (see [SAFARI.md](SAFARI.md)) |
+   | `pocket-canvas-windows-latest` | `Pocket-Canvas Setup 1.5.5.exe` (installer) and `Pocket-Canvas-1.5.5-portable.exe` (runs without installing) |
+   | `pocket-canvas-macos-26` (or `-macos-15-intel`) | `Pocket-Canvas-1.5.5-mac-arm64.dmg` for Macs with Apple chips (M1 and later), and `Pocket-Canvas-1.5.5-mac-x64.dmg` for older Intel Macs, plus a `.zip` of each that runs without installing |
+   | `pocket-canvas-ubuntu-24.04` | `Pocket-Canvas-1.5.5.AppImage`, `pocket-canvas_1.5.5_amd64.deb` |
+   | `pocket-canvas-browser-extension` | `pocket-canvas-web-clipper-1.5.5.zip` |
+   | `pocket-canvas-server` | `Pocket-Canvas-Server-1.5.5.zip`: the server with the browser version built in (see [server/README.md](../server/README.md)) |
+   | `pocket-canvas-android` | `Pocket-Canvas-1.5.5-android.apk` (see [ANDROID.md](ANDROID.md)) |
+   | `pocket-canvas-ios` | `Pocket-Canvas-1.5.5-ios-unsigned.ipa` and `…-ios-simulator.zip` (see [IOS.md](IOS.md)) |
+   | `pocket-canvas-safari-extension` | `Pocket-Canvas-Web-Clipper-1.5.5-safari.zip` and the converter's report (see [SAFARI.md](SAFARI.md)) |
 
 7. Click an artifact to download it. GitHub always wraps artifacts in a zip, so unzip it to get the installer. Artifacts are deleted after 90 days.
 
@@ -113,23 +113,29 @@ A test build does **not** create a GitHub Release, and nobody else can see it un
 - **macOS:** open the `.dmg` and drag Pocket-Canvas to Applications.
   - Until it is signed and notarised, macOS says the app "can't be opened".
   - On macOS 15 or later, open **System Settings** → **Privacy & Security**, scroll down to the Pocket-Canvas message and click **Open Anyway**.
-- **Linux:** run `chmod +x Pocket-Canvas-1.5.0.AppImage && ./Pocket-Canvas-1.5.0.AppImage`, or install the `.deb` with `sudo apt install ./pocket-canvas_1.5.0_amd64.deb`.
+- **Linux:** run `chmod +x Pocket-Canvas-1.5.5.AppImage && ./Pocket-Canvas-1.5.5.AppImage`, or install the `.deb` with `sudo apt install ./pocket-canvas_1.5.5_amd64.deb`.
 
 Check the things this release changed, then check the basics: open a board, add a card, restart the app and make sure the card is still there.
 
 ## 1.4 Publish a release
 
 1. **Choose the version number.** Use `MAJOR.MINOR.PATCH`:
-   - `1.3.1` for fixes only
-   - `1.5.0` for new features
+   - `1.5.6` for fixes only
+   - `1.6.0` for new features
    - `2.0.0` if old data won't open without converting
-2. **Bump the version** in `package.json`:
+2. **Bump the version.** The number is stored in these places; change them all to the same number:
 
-   ```json
-   "version": "1.5.0",
-   ```
+   | File | What to change |
+   |---|---|
+   | `package.json` | `"version": "1.5.5"` (Android takes its version from here: `1.5.5` becomes build code `10505`) |
+   | `package-lock.json` | the two `"version"` lines at the top |
+   | `server/package.json` and `server/package-lock.json` | the same |
+   | `server/pocket-canvas-server.js` | the version near the top |
+   | `browser-extension/manifest.json` | `"version"` |
+   | `ios/App/App.xcodeproj/project.pbxproj` | `MARKETING_VERSION = 1.5.5;` and `CURRENT_PROJECT_VERSION = 10505;` (twice each) |
+   | `FEATURES.md`, `docs/USER-GUIDE.md`, `docs/DEVELOPER-GUIDE.md` | the "Version" line |
 
-   You don't need to edit `browser-extension/manifest.json`, because the build copies the version across. Both stores reject an upload whose version isn't higher than the last one.
+   The workflow checks that the tag matches `package.json` and stops if they differ. The app stores reject an upload whose version isn't higher than the last one.
 3. **Update the notes:**
    - add a section to `FEATURES.md`
    - update **What's new** in `docs/USER-GUIDE.md`
@@ -141,24 +147,39 @@ Check the things this release changed, then check the basics: open a board, add 
    npm test
    ```
 
-5. **Commit and push:**
+5. **Commit and push with GitHub Desktop:**
+   1. Copy the updated files into your local `Pocket-Canvas` folder (the one GitHub Desktop looks after).
+   2. In GitHub Desktop, check the changed files in the left-hand list.
+   3. Bottom left, type a summary such as `Release 1.5.5`, then click **Commit to main**.
+   4. Click **Push origin** at the top.
+
+   <details><summary>Command-line alternative</summary>
 
    ```bash
    git add .
-   git commit -m "Release 1.5.0"
+   git commit -m "Release 1.5.5"
    git push
    ```
+   </details>
 
-6. **Tag the release and push the tag.** The tag must start with `v` and match `package.json`:
+6. **Create the release (and its tag) on the GitHub website.** The tag must start with `v` and match `package.json`.
+   1. Open the repository on GitHub and click **Releases** (right-hand side), then **Draft a new release**.
+   2. Click **Choose a tag**, type `v1.5.5`, and click **Create new tag: v1.5.5 on publish**. Leave the target as **main**. Make sure you pushed first, so the tag points at the new code.
+   3. Give it a title such as `Pocket-Canvas 1.5.5`, and click **Publish release**.
+
+   Publishing creates the tag, and the tag starts the build. The workflow then attaches the installers to this release.
+
+   <details><summary>Command-line alternative</summary>
 
    ```bash
-   git tag v1.5.0
-   git push origin v1.5.0
+   git tag v1.5.5
+   git push origin v1.5.5
    ```
+   </details>
 
-7. **Watch it build.** Open **Actions** to see the run for `v1.5.0`.
+7. **Watch it build.** Open **Actions** to see the run for `v1.5.5`.
 8. **Check the release.** When the run is green, open the repository's **Releases** page (right-hand side of the main page, or `/releases`).
-   - Release **v1.5.0** should list every installer and the extension zip.
+   - Release **v1.5.5** should list every installer and the extension zip.
    - Each build job adds its own files as it finishes, so the list fills in over a few minutes.
 9. **Write the release notes.** Click the pencil (**Edit**) on the release. Paste the release's lines from `FEATURES.md`, plus a short "Installing" note pointing Windows and Mac users to the warnings in section 1.3 if the build is unsigned. Click **Update release**.
 
@@ -171,6 +192,7 @@ People can now download from `https://github.com/Pocket-Designs/Pocket-Canvas/re
 | What you see | What to do |
 |---|---|
 | A **test** step fails | Run the same test locally (`npm test`, or `npm run test:features`), fix it, commit, then re-tag (below). |
+| `The tag is v… but package.json says …` | You tagged before bumping every version (step 2). Bump it, push, then re-tag (below). |
 | `npm ci` errors about the lock file | Run `npm install` locally, commit `package-lock.json`, push. |
 | `Resource not accessible by integration` or `403` when attaching to the release | Do step 3 of section 1.1 (read and write permissions). |
 | A build fails, but the same code worked before | GitHub runners sometimes have hiccups. Open the run and click **Re-run jobs** → **Re-run failed jobs**. |
@@ -180,22 +202,21 @@ People can now download from `https://github.com/Pocket-Designs/Pocket-Canvas/re
 **Re-tagging the same version.** Do this when a tagged build failed and you fixed the code.
 
 1. On GitHub, open **Releases**, open the broken release, and click **Delete** (the bin icon). If the release was never created, skip this step.
-2. Delete the tag on your computer and on GitHub:
+2. Delete the tag on GitHub: open the repository's **Tags** page (from **Releases**, click **Tags**), click the tag, then **⋯** → **Delete tag**. If GitHub Desktop has a copy of the tag on your computer, it is removed the next time you fetch; if not, it doesn't matter, because the website creates the new tag.
+3. Commit the fix in GitHub Desktop, click **Push origin**, then create the release again (step 6 of section 1.4) with the same tag.
+
+   <details><summary>Command-line alternative</summary>
 
    ```bash
-   git tag -d v1.5.0
-   git push --delete origin v1.5.0
-   ```
-
-3. Commit the fix, push, and tag again:
-
-   ```bash
+   git tag -d v1.5.5
+   git push --delete origin v1.5.5
    git push
-   git tag v1.5.0
-   git push origin v1.5.0
+   git tag v1.5.5
+   git push origin v1.5.5
    ```
+   </details>
 
-If people may already have downloaded the broken version, release `1.4.1` instead of re-tagging.
+If people may already have downloaded the broken version, release the next number (for example `1.5.6`) instead of re-tagging. A version number can only be used once on the app stores, so once a version is public, always move on to the next number.
 
 ---
 
@@ -393,11 +414,11 @@ Azure Artifact Signing used to be called **Trusted Signing**, and some Azure scr
    | `AZURE_PUBLISHER_NAME` | `Project Tech Me Ltd`, exactly as the certificate's Subject Name |
 
 10. **Run a test build** (section 1.2). In the **windows-latest** job's **Build installer** step, look for lines about signing with Azure. Then check the downloaded installer:
-    - Right-click `Pocket-Canvas Setup 1.5.0.exe` → **Properties** → **Digital Signatures**. Your company name should be listed.
+    - Right-click `Pocket-Canvas Setup 1.5.5.exe` → **Properties** → **Digital Signatures**. Your company name should be listed.
     - Or, in PowerShell:
 
       ```powershell
-      Get-AuthenticodeSignature ".\Pocket-Canvas Setup 1.5.0.exe" | Format-List
+      Get-AuthenticodeSignature ".\Pocket-Canvas Setup 1.5.5.exe" | Format-List
       #   Status : Valid
       ```
 
