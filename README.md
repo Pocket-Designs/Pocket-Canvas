@@ -1,5 +1,5 @@
 <div align="center">
-  <img width="224" height="224" alt="Pocket-Canvas" src="../src/icon.png" />
+  <img width="224" height="224" alt="Pocket-Canvas" src="./src/icon.png" />
 
 </div>
 
