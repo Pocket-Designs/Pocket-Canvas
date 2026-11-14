@@ -1,3 +1,8 @@
+<div align="center">
+<img width="224" height="224" alt=" Pocket-Canvas" src="../src/icon.png" />
+</div>
+
+
 # Pocket-Canvas User Guide
 
 Welcome to Pocket-Canvas: a place to lay out your ideas, plans, mood boards and to-do lists on an endless board, the way you would on a real corkboard.
