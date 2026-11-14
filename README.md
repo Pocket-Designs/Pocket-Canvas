@@ -1,5 +1,5 @@
 <div align="center">
-  <img width="224" height="224" alt="Pocket-Canvas" src="https://github.com/user-attachments/assets/4bc49438-017c-4db1-86c3-78b22d6eb198" />
+  <img width="224" height="224" alt="Pocket-Canvas" src="../src/icon.png" />
 
 </div>
 
