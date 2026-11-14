@@ -1,3 +1,9 @@
+<div align="center">
+
+<img width="224" height="224" alt="Pocket-Canvas" src="./src/icon.png" />
+
+</div>
+
 # Pocket-Canvas — Feature List
 
 Version 1.5.5 · © 2026 Pocket-Designs
