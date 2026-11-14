@@ -1,3 +1,7 @@
+<div align="center">
+<img width="224" height="224" alt="Pocket-Canvas" src="../src/icon.png" />
+</div>
+
 # Pocket-Canvas for Android
 
 Copyright © 2026 Pocket-Designs · pocket-designs@proton.me
