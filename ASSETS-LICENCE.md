@@ -1,3 +1,8 @@
+<div align="center">
+<img width="224" height="224" alt="Pocket-Canvas" src="./src/icon.png" />
+</div>
+
+
 # Pocket-Canvas — Asset Licences
 
 This file lists every asset that ships with Pocket-Canvas, who made it, and the licence it is used under.
