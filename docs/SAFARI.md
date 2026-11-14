@@ -1,3 +1,13 @@
+<div align="center">
+
+<img width="224" height="224" alt="pocket-canvas" src="../src/icon.png" />
+
+</div>
+
+
+
+
+
 # The web clipper in Safari (Mac)
 
 Copyright © 2026 Pocket-Designs · pocket-designs@proton.me
