@@ -1,3 +1,10 @@
+<div align="center">
+
+<img width="224" height="224" alt="Pocket-Canvas" src="../src/icon.png" />
+
+</div>
+
+
 # Pocket-Canvas Developer Guide
 
 How Pocket-Canvas is built, how to run and test it, how to change it, and how to ship a release.
