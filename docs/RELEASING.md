@@ -1,3 +1,8 @@
+<div align="center">
+<img width="224" height="224" alt="Pocket-Canvas" src="../src/icon.png" />
+</div>
+
+
 # Releasing and code signing Pocket-Canvas
 
 Copyright © 2026 Pocket-Designs · pocket-designs@proton.me
